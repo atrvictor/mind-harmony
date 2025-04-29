@@ -1,8 +1,5 @@
 "use client";
 
-// app/components/Navigation.tsx
-// version: 1
-
 import Link from "next/link";
 import { useState } from "react";
 
@@ -100,4 +97,4 @@ export default function Navigation() {
       </div>
     </nav>
   );
-} 
+}
