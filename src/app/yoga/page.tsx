@@ -1,8 +1,6 @@
 // app/yoga/page.tsx
 // version: 1
 
-import Link from "next/link";
-
 export default function YogaPage() {
   return (
     <main className="flex min-h-screen flex-col items-center">

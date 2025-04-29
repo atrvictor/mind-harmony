@@ -1,8 +1,6 @@
 // app/subscription/page.tsx
 // version: 1
 
-import Link from "next/link";
-
 export default function SubscriptionPage() {
   return (
     <main className="flex min-h-screen flex-col items-center">

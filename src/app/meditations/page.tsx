@@ -105,19 +105,19 @@ export default function MeditationsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                "These piano meditations have become an essential part of my daily routine. The music is incredibly soothing and helps me find my center."
+                &ldquo;These piano meditations have become an essential part of my daily routine. The music is incredibly soothing and helps me find my center.&rdquo;
               </p>
               <p className="font-semibold text-gray-900 dark:text-white">- Sarah M.</p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                "I've tried many meditation apps, but nothing compares to the depth and quality of these piano sessions. Truly transformative."
+                &ldquo;I&apos;ve tried many meditation apps, but nothing compares to the depth and quality of these piano sessions. Truly transformative.&rdquo;
               </p>
               <p className="font-semibold text-gray-900 dark:text-white">- Michael R.</p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                "The combination of beautiful piano music and guided meditation is perfect. I feel more relaxed and focused after each session."
+                &ldquo;The combination of beautiful piano music and guided meditation is perfect. I feel more relaxed and focused after each session.&rdquo;
               </p>
               <p className="font-semibold text-gray-900 dark:text-white">- Emily T.</p>
             </div>
