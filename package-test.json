@@ -1,0 +1,12 @@
+{
+  "name": "supabase-connection-test",
+  "version": "1.0.0",
+  "description": "Test Supabase connection for Mind Harmony",
+  "type": "module",
+  "scripts": {
+    "test": "node test-supabase.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0"
+  }
+} 

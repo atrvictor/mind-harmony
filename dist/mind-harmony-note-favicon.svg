@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#1E3A5F" stroke="#D4AF37" stroke-width="2" />
+  
+  <!-- Musical note -->
+  <path d="M65 25V55C65 60 60 65 55 65S45 60 45 55 50 45 55 45C57 45 59 46 60 47V30L40 35V65C40 70 35 75 30 75S20 70 20 65 25 55 30 55C32 55 34 56 35 57V25L65 20V25Z" 
+        fill="#D4AF37" />
+  
+  <!-- Heart next to the note -->
+  <path d="M75 50C75 46 77 42 80 42C83 42 85 45 85 48C85 55 75 62 75 62S65 55 65 48C65 45 67 42 70 42C73 42 75 46 75 50Z" 
+        fill="#D4AF37" />
+</svg> 
