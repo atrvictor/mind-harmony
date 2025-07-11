@@ -6,31 +6,34 @@ export default function EventsSection() {
   const events = [
     {
       id: 1,
-      title: "Candlelight Yoga and Piano",
-      date: "May 18th, 2025",
-      time: "7:00 PM",
+      title: "Piano Meditation Experience",
+      date: "July 19th, 2025",
+      time: "6:30 PM",
+      location: "Mission Bay",
       description:
-        "Experience the harmonious blend of gentle yoga flows guided by live piano music in a serene, candlelit environment. Perfect for all levels.",
-      image: "/CandlelightYoga.jpg",
+        "Breathe in the ocean air, and let Victor Kulish guide you into deep calm as the sun melts into Mission Bay.",
+      image: "public/milana mindharmony pics/DSC03938.jpg",
       featured: true,
+      getTicketsLink: "https://www.eventbrite.com/e/mind-harmony-presents-victor-kulish-piano-meditation-experience-tickets-1418832870309?aff=oddtdtcreator",
     },
     {
       id: 2,
-      title: "Mindful Piano Meditation",
-      date: "June 5th, 2025",
+      title: "Sunset Piano Meditation Popup",
+      date: "July 12th, 2025",
       time: "6:30 PM",
+      location: "Pacific Beach",
       description:
-        "Join us for an evening of guided meditation accompanied by soothing piano melodies to help calm your mind and rejuvenate your spirit.",
-      image: "/piano photos/piano_keys_hammers_tricolor_nocandle_2.jpg",
+        "Join us for an evening of guided meditation and piano melodies as the sun sets, creating a tranquil atmosphere for relaxation and reflection.",
+      image: "public/mind harmony pics/Columet edited.png",
     },
     {
       id: 3,
-      title: "Sound Bath & Piano Journey",
-      date: "June 15th, 2025",
-      time: "8:00 PM",
+      title: "Roots Bday Meditation & Piano Journey",
+      date: "July 27th, 2025",
+      time: "5:00 PM",
       description:
-        "Immerse yourself in healing vibrations of crystal bowls harmonized with piano compositions for deep relaxation and inner peace.",
-      image: "/piano photos/piano_macro_hammers_purple_candlelight_1.jpg",
+        "Experience the compositions from the upcoming Roots Piano album, accompanied by an immersive story that guides you between the songs. Designed as both a meditation and a journey, it leads you into deep relaxation and inner peace.",
+      image: "public/milana mindharmony pics/DSC03928.jpg",
     },
   ];
 
@@ -70,7 +73,7 @@ export default function EventsSection() {
               description={nearestEvent.description}
               image={nearestEvent.image}
               featured={nearestEvent.featured}
-              getTicketsLink={nearestEvent.title === "Candlelight Yoga and Piano" ? "https://www.eventbrite.com/e/candlelit-yoga-to-live-piano-by-dom-and-victor-may-tickets-1342976190939?aff=erelexpmlt" : undefined}
+              getTicketsLink={nearestEvent.getTicketsLink}
             />
           </div>
 

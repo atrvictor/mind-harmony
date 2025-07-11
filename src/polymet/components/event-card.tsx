@@ -92,7 +92,7 @@ export default function EventCard({
 
         <p className="text-muted-foreground mb-4 line-clamp-2">{description}</p>
 
-        {getTicketsLink && title === "Candlelight Yoga and Piano" ? (
+        {getTicketsLink ? (
           <a
             href={getTicketsLink}
             target="_blank"

@@ -8,45 +8,46 @@ export default function EventsPage() {
   const upcomingEvents = [
     {
       id: 1,
+      title: "Piano Meditation Experience",
+      date: "July 19th, 2025",
+      time: "6:30 PM",
+      location: "Mission Bay",
+      description:
+        "Breathe in the ocean air, and let Victor Kulish guide you into deep calm as the sun melts into Mission Bay.",
+      image: "public/milana mindharmony pics/DSC03938.jpg",
+    },
+    {
+      id: 2,
+      title: "Sunset Piano Meditation Popup",
+      date: "July 12th, 2025",
+      time: "6:30 PM",
+      location: "Pacific Beach",
+      description:
+        "Join us for an evening of guided meditation and piano melodies as the sun sets, creating a tranquil atmosphere for relaxation and reflection.",
+      image: "public/mind harmony pics/Columet edited.png",
+    },
+    {
+      id: 3,
+      title: "Roots Bday Meditation & Piano Journey",
+      date: "July 27th, 2025",
+      time: "5:00 PM",
+      description:
+        "Experience the compositions from the upcoming Roots Piano album, accompanied by an immersive story that guides you between the songs. Designed as both a meditation and a journey, it leads you into deep relaxation and inner peace.",
+      image: "public/milana mindharmony pics/DSC03928.jpg",
+    },
+    {
+      id: 4,
       title: "Candlelight Yoga and Piano",
       date: "May 18th, 2025",
       time: "7:00 PM",
       description:
         "Experience the harmonious blend of gentle yoga flows guided by live piano music in a serene, candlelit environment. Perfect for all levels.",
       image: "/CandlelightYoga.jpg",
-      featured: true,
-    },
-    {
-      id: 2,
-      title: "Mindful Piano Meditation",
-      date: "June 5th, 2025",
-      time: "6:30 PM",
-      description:
-        "Join us for an evening of guided meditation accompanied by soothing piano melodies to help calm your mind and rejuvenate your spirit.",
-      image: "/piano photos/piano_keys_hammers_tricolor_nocandle_2.jpg",
-    },
-    {
-      id: 3,
-      title: "Sound Bath & Piano Journey",
-      date: "June 15th, 2025",
-      time: "8:00 PM",
-      description:
-        "Immerse yourself in healing vibrations of crystal bowls harmonized with piano compositions for deep relaxation and inner peace.",
-      image: "/piano photos/piano_macro_hammers_purple_candlelight_1.jpg",
-    },
-    {
-      id: 4,
-      title: "Full Moon Piano Meditation",
-      date: "June 24th, 2025",
-      time: "9:00 PM",
-      description:
-        "Harness the powerful energy of the full moon with a special piano meditation session designed to help you release what no longer serves you.",
-      image: "/piano photos/piano_macro_strings_purple_candlelight_1.jpg",
     },
     {
       id: 5,
       title: "Morning Awakening: Piano & Breathwork",
-      date: "July 2nd, 2025",
+      date: "May 12th, 2025",
       time: "8:00 AM",
       description:
         "Start your day with intention through this energizing combination of breathwork exercises and uplifting piano compositions.",
@@ -55,7 +56,7 @@ export default function EventsPage() {
     {
       id: 6,
       title: "Piano Meditation for Stress Relief",
-      date: "July 10th, 2025",
+      date: "April 10th, 2025",
       time: "6:00 PM",
       description:
         "A focused session designed specifically to address stress and anxiety through guided meditation and calming piano melodies.",
@@ -63,9 +64,8 @@ export default function EventsPage() {
     },
   ];
 
-  function EventGridCard({ event }: { event: typeof upcomingEvents[0] }) {
+  function EventGridCard({ event, isPastEvent = false }: { event: EventType, isPastEvent?: boolean }) {
     const { containerRef, isActive } = useScrollZoom(0.4);
-    const isCandlelightYoga = event.title === "Candlelight Yoga and Piano";
     return (
       <div className="group overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-md">
         <div
@@ -90,7 +90,9 @@ export default function EventsPage() {
             <CalendarIcon size={16} />
 
             <span>
-              {event.title === "Candlelight Yoga and Piano"
+              {event.location
+                ? `${event.date} • ${event.time} • ${event.location}`
+                : event.title === "Candlelight Yoga and Piano"
                 ? `${event.date} • ${event.time} • La Jolla`
                 : `${event.date} • ${event.time}`}
             </span>
@@ -104,9 +106,9 @@ export default function EventsPage() {
             {event.description}
           </p>
 
-          {isCandlelightYoga ? (
+          {event.getTicketsLink ? (
             <a
-              href="https://www.eventbrite.com/e/candlelit-yoga-to-live-piano-by-dom-and-victor-may-tickets-1342976190939?aff=erelexpmlt"
+              href={event.getTicketsLink}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full inline-block"
@@ -114,12 +116,32 @@ export default function EventsPage() {
               <Button className="w-full">Get Tickets</Button>
             </a>
           ) : (
-            <Button className="w-full" disabled>Coming Soon</Button>
+            <Button className="w-full" disabled>{isPastEvent ? "Past Event" : "Coming Soon"}</Button>
           )}
         </div>
       </div>
     );
   }
+
+  // Define the event type to include getTicketsLink and featured
+  type EventType = typeof upcomingEvents[0] & { getTicketsLink?: string; featured?: boolean };
+
+  // Split the events into upcoming and past based on their order in the array
+  const upcoming: EventType[] = upcomingEvents.slice(0, 3);
+  const past: EventType[] = upcomingEvents.slice(3);
+
+  // Copy the updated ticket link for the featured event
+  const ticketLink = "https://www.eventbrite.com/e/mind-harmony-presents-victor-kulish-piano-meditation-experience-tickets-1418832870309?aff=oddtdtcreator";
+
+  // Only set 'featured' for the first upcoming event
+  const updatedUpcoming: EventType[] = upcoming.map((event, idx) =>
+    idx === 0
+      ? { ...event, featured: true, getTicketsLink: ticketLink }
+      : { ...event }
+  );
+
+  // Ensure all events passed to EventGridCard have getTicketsLink property
+  const updatedPast: EventType[] = past.map((event) => ({ ...event, getTicketsLink: event.getTicketsLink }));
 
   return (
     <div>
@@ -144,7 +166,7 @@ export default function EventsPage() {
         </div>
       </div>
 
-      {/* Events Calendar Section */}
+      {/* Upcoming Events Section */}
       <section className="py-16 px-4 md:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
@@ -156,14 +178,24 @@ export default function EventsPage() {
             </div>
             <div className="mt-4 md:mt-0 flex items-center gap-2">
               <CalendarIcon className="h-5 w-5 text-muted-foreground" />
-
               <span className="text-muted-foreground">May - July 2025</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {upcomingEvents.map((event) => (
+            {updatedUpcoming.map((event) => (
               <EventGridCard key={event.id} event={event} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Past Events Section */}
+      <section className="py-16 px-4 md:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {updatedPast.map((event) => (
+              <EventGridCard key={event.id} event={event} isPastEvent />
             ))}
           </div>
         </div>
@@ -226,3 +258,4 @@ export default function EventsPage() {
     </div>
   );
 }
+
