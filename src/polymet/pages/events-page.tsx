@@ -14,7 +14,7 @@ export default function EventsPage() {
       location: "Mission Bay",
       description:
         "Breathe in the ocean air, and let Victor Kulish guide you into deep calm as the sun melts into Mission Bay.",
-      image: "public/milana mindharmony pics/DSC03938.jpg",
+      image: "/MH Milana DSC03938.jpg",
     },
     {
       id: 2,
@@ -24,7 +24,7 @@ export default function EventsPage() {
       location: "Pacific Beach",
       description:
         "Join us for an evening of guided meditation and piano melodies as the sun sets, creating a tranquil atmosphere for relaxation and reflection.",
-      image: "public/mind harmony pics/Columet edited.png",
+      image: "public/MH Columet edited.png",
     },
     {
       id: 3,
@@ -33,7 +33,7 @@ export default function EventsPage() {
       time: "5:00 PM",
       description:
         "Experience the compositions from the upcoming Roots Piano album, accompanied by an immersive story that guides you between the songs. Designed as both a meditation and a journey, it leads you into deep relaxation and inner peace.",
-      image: "public/milana mindharmony pics/DSC03928.jpg",
+      image: "/MH Milana DSC03928.jpg",
     },
     {
       id: 4,
