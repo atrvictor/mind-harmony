@@ -24,7 +24,7 @@ export default function EventsPage() {
       location: "Pacific Beach",
       description:
         "Join us for an evening of guided meditation and piano melodies as the sun sets, creating a tranquil atmosphere for relaxation and reflection.",
-      image: "public/MH_Columet_edited.png",
+      image: "/MH_Columet_edited.png",
     },
     {
       id: 3,

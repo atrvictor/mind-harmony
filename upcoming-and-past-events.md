@@ -16,7 +16,7 @@
    - **Description:** Join us for an evening of guided meditation and piano melodies as the sun sets, creating a tranquil atmosphere for relaxation and reflection.
    - **Date:** July 12th, 2025, 6:30 PM
    - **Location:** Pacific Beach
-   - **Image:** /MH Columet edited.png
+   - **Image:** /MH_Columet_edited.png
 
 3. **Roots Bday Meditation & Piano Journey**
    - **Order:** 3
