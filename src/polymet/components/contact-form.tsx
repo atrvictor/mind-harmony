@@ -29,6 +29,7 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
+  phone: z.string().optional(),
   interest: z.string({
     required_error: "Please select an area of interest.",
   }),
@@ -43,6 +44,7 @@ export default function ContactForm() {
     defaultValues: {
       name: "",
       email: "",
+      phone: "",
       interest: "",
     },
   });
@@ -50,41 +52,24 @@ export default function ContactForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     setIsSubmitted(false);
-    // Register user with Supabase Auth (magic link, passwordless)
-    const { data, error } = await supabase.auth.signInWithOtp({
-      email: values.email,
-      options: {
-        data: {
-          full_name: values.name,
-          interest: values.interest,
-        },
-      },
-    });
-    if (error) {
-      let friendlyMessage = error.message;
-      if (friendlyMessage.toLowerCase().includes("already registered") || friendlyMessage.toLowerCase().includes("user already exists") || friendlyMessage.toLowerCase().includes("duplicate")) {
-        friendlyMessage = "Email already registered.";
-      }
-      // Always show the actual error message for debugging
-      form.setError("email", { message: friendlyMessage + (friendlyMessage !== error.message ? `\n(${error.message})` : "") });
+    // 1) Insert into community table
+    const { error: communityError } = await supabase
+      .from('community')
+      .insert({ name: values.name, email: values.email, phone: values.phone, interest: values.interest });
+    if (communityError) {
+      form.setError("email", { message: communityError.message });
       setIsSubmitting(false);
       return;
     }
-    // Also upsert into profiles table
-    const { error: profileError } = await supabase.from("profiles").upsert({
-      full_name: values.name,
-      user_id: null, // will be filled after verification, but we can use email as a temp unique
-      bio: null,
-      preferred_meditation_duration: null,
-      preferred_meditation_time: null,
-      notification_preference: null,
-      interest: values.interest,
-      email: values.email,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }, { onConflict: "email" });
-    if (profileError) {
-      form.setError("email", { message: "Registered, but failed to save profile: " + profileError.message });
+    // 2) Send welcome email via API route (non-blocking)
+    try {
+      await fetch('/api/sendCommunityWelcomeEmail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: values.name, email: values.email, interest: values.interest })
+      });
+    } catch (e) {
+      console.error('Failed to send community welcome email', e);
     }
     setIsSubmitting(false);
     setIsSubmitted(true);
@@ -153,6 +138,20 @@ export default function ContactForm() {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input placeholder="your.email@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone (optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="(555) 555-5555" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

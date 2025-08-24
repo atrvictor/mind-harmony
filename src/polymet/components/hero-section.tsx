@@ -7,7 +7,7 @@ export default function HeroSection() {
       {/* Hero Background Image */}
       <div className="absolute inset-0 w-full h-full">
         <img
-          src="/DSC03945.jpg"
+          src="/optimized/DSC03945.jpg"
           alt="Main header image"
           className="object-cover w-full h-full"
         />

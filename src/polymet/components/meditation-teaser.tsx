@@ -102,9 +102,11 @@ export default function MeditationTeaser() {
           <div className="order-1 lg:order-2 relative">
             <div className="relative aspect-square overflow-hidden rounded-2xl">
               <img
-                src="/nature_river_rocks_focused_deep_creek_style_2.jpg"
+                src="/optimized/nature_river_rocks_focused_deep_creek_style_2.jpg"
                 alt="Piano meditation preview"
                 className="object-cover w-full h-full"
+                loading="lazy"
+                decoding="async"
               />
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>

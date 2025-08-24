@@ -13,9 +13,11 @@ export default function ContactPage() {
       {/* Hero Section */}
       <div className="relative h-[400px] overflow-hidden">
         <img
-          src="/katesessions_landscape_woman_left_1.jpg"
+          src="/optimized/katesessions_landscape_woman_left_1.jpg"
           alt="Kate Sessions Park with woman on left"
           className="object-cover w-full h-full"
+          loading="lazy"
+          decoding="async"
         />
 
         <div className="absolute inset-0 bg-black/40" />

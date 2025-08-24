@@ -4,7 +4,7 @@ import { HeartIcon, MusicIcon } from "lucide-react";
 export default function AboutSection() {
   // Named image sources for clarity
   const founderMainImage = "/victor-at-piano.webp"; // Victor playing piano
-  const founderCornerImage = "/founder-corner-image.jpg"; // Corner image
+  const founderCornerImage = "/optimized/founder-corner-image.jpg"; // Corner image
   
   return (
     <section className="py-16 px-4 md:px-6 lg:px-8">

@@ -1,4 +1,5 @@
 import FixedNavigationMenu from "@/polymet/components/fixed-navigation-menu";
+import AudioPlayer from "@/polymet/components/audio-player";
 import Footer from "@/polymet/components/footer";
 import { MusicIcon } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
@@ -68,6 +69,9 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
       <main className="flex-1 overflow-x-hidden pt-20">{children}</main>
 
       <Footer />
+
+      {/* Floating audio player; plays your uploaded track */}
+      <AudioPlayer src="/audio/Kindred%20Spirit%20Felt.mp3" title="Kindred Spirit Vitiá Kulish" loop />
     </div>
   );
 }

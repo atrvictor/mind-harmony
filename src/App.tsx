@@ -13,9 +13,11 @@ import MeditationsPage from "@/polymet/pages/meditations-page";
 import ContactPage from "@/polymet/pages/contact-page";
 import PricingPage from "@/polymet/pages/pricing-page";
 import ProfilePage from "@/polymet/pages/profile-page";
+import ResetPasswordPage from "@/polymet/pages/reset-password";
 import AdminSetupPage from "@/polymet/pages/admin-setup";
 import LoginPage from "@/polymet/pages/login-page";
 import AdminPage from "@/polymet/pages/admin";
+import ReservePage from "@/polymet/pages/reserve-page";
 
 // User Profile button component that can be added to navigation
 function UserProfileButton() {
@@ -179,9 +181,15 @@ export default function MindHarmonyPrototype() {
               <PricingPage />
             </AuthenticatedLayout>
           } />
+          <Route path="/reserve" element={
+            <AuthenticatedLayout>
+              <ReservePage />
+            </AuthenticatedLayout>
+          } />
           
           {/* Auth routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           
           {/* Protected routes */}
           <Route path="/meditation" element={

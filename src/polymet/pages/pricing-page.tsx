@@ -159,9 +159,11 @@ export default function PricingPage() {
       {/* Hero Section */}
       <div className="relative h-[400px] overflow-hidden">
         <img
-          src="/katesessions_young_man_left_1.jpg"
+          src="/optimized/katesessions_young_man_left_1.jpg"
           alt="Kate Sessions Park with young man on left"
           className="object-cover w-full h-full"
+          loading="lazy"
+          decoding="async"
         />
 
         <div className="absolute inset-0 bg-black/40" />

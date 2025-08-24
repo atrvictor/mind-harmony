@@ -4,16 +4,18 @@ import { HeartIcon, MusicIcon } from "lucide-react";
 export default function AboutPage() {
   // Named image sources for clarity
   const founderMainImage = "/victor-at-piano.webp"; // Victor playing piano
-  const founderCornerImage = "/founder-corner-image.jpg"; // Corner image
+  const founderCornerImage = "/optimized/founder-corner-image.jpg"; // Corner image
 
   return (
     <div>
       {/* Hero Section */}
       <div className="relative h-[400px] overflow-hidden">
         <img
-          src="/glider port chad.png"
+          src="/optimized/glider port chad.png"
           alt="Gliderport Chad"
           className="object-cover w-full h-full"
+          loading="lazy"
+          decoding="async"
         />
 
         <div className="absolute inset-0 bg-black/40" />
@@ -68,6 +70,8 @@ export default function AboutPage() {
                   src={founderMainImage}
                   alt="Victor Kulish, Founder of Mind Harmony"
                   className="object-cover w-full h-full"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-lg shadow-md hidden md:block">
@@ -75,6 +79,8 @@ export default function AboutPage() {
                   src={founderCornerImage}
                   alt="Victor Kulish"
                   className="rounded w-[100px] h-[100px] object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             </div>
@@ -168,9 +174,11 @@ export default function AboutPage() {
             <div className="text-center">
               <div className="relative w-48 h-48 mx-auto mb-4">
                 <img
-                  src="/Vic.jpg"
+                  src="/optimized/Vic.jpg"
                   alt="Victor Kulish"
                   className="rounded-full object-cover w-full h-full"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <h3 className="text-xl font-semibold">Victor Kulish</h3>
@@ -185,9 +193,11 @@ export default function AboutPage() {
             <div className="text-center">
               <div className="relative w-48 h-48 mx-auto mb-4">
                 <img
-                  src="/Dom.jpg"
+                  src="/optimized/Dom.jpg"
                   alt="Dominick Cole"
                   className="rounded-full object-cover w-full h-full"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <h3 className="text-xl font-semibold">Dominick Cole</h3>
@@ -201,9 +211,11 @@ export default function AboutPage() {
             <div className="text-center">
               <div className="relative w-48 h-48 mx-auto mb-4">
                 <img
-                  src="/Masha.jpg"
+                  src="/optimized/Masha.jpg"
                   alt="Masha Shenderovich"
                   className="rounded-full object-cover w-full h-full"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <h3 className="text-xl font-semibold">Masha Shenderovich</h3>

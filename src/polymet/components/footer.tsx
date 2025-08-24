@@ -27,7 +27,9 @@ export default function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://www.facebook.com/atrvictor"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:text-white/80 transition-colors"
                 aria-label="Facebook"
               >
@@ -47,7 +49,9 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/mindharmonypiano/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:text-white/80 transition-colors"
                 aria-label="Instagram"
               >
@@ -143,10 +147,20 @@ export default function Footer() {
                   Contact
                 </Link>
               </li>
+              <li>
+                <a
+                  href="https://venmo.com/u/mindharmony"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  Donate
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* Resources Column */}
+          {/* Resources Column - Temporarily removed since links don't point to anything yet
           <div>
             <h3 className="text-lg font-semibold mb-4">Resources</h3>
             <ul className="space-y-2">
@@ -200,6 +214,7 @@ export default function Footer() {
               </li>
             </ul>
           </div>
+          */}
 
           {/* Newsletter Column */}
           <div>

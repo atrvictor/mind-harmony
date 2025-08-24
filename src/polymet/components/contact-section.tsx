@@ -16,9 +16,11 @@ export default function ContactSection() {
 
             <div className="mb-8">
               <img
-                src="/gliderport_landscape_2.jpg"
+                src="/optimized/gliderport_landscape_2.jpg"
                 alt="Mind Harmony community at Gliderport"
                 className="rounded-lg w-full h-auto"
+                loading="lazy"
+                decoding="async"
               />
             </div>
 

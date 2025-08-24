@@ -109,6 +109,17 @@ export default function NavigationMenuDemo() {
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
+          <NavigationMenuItem>
+            <a
+              href="https://venmo.com/u/mindharmony"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                Donate
+              </NavigationMenuLink>
+            </a>
+          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
           </div>
@@ -168,6 +179,29 @@ export default function NavigationMenuDemo() {
               <MobileNavLink to="/contact" onClick={() => setIsOpen(false)}>
                 Contact
               </MobileNavLink>
+              <a
+                href="https://venmo.com/u/mindharmony"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex w-full items-center py-2 text-lg font-medium transition-colors hover:text-[#1E3A5F]"
+                onClick={() => setIsOpen(false)}
+              >
+                Donate
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </a>
               {user ? (
                 <>
                   <MobileNavLink to="/profile" onClick={() => setIsOpen(false)}>

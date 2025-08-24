@@ -239,7 +239,7 @@ export default function ProfilePage() {
     <div className="max-w-3xl mx-auto py-12 px-4">
       <h1 className="text-3xl font-bold mb-8 text-center flex items-center justify-center gap-4">
         Your Profile
-        {user?.email === "atrvictor@gmail.com" && (
+        {user?.email && ["atrvictor@gmail.com", "mashashen@yahoo.com"].includes(user.email) && (
           <Button asChild size="sm" variant="outline">
             <Link to="/admin">Admin</Link>
           </Button>

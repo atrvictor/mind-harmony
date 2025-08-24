@@ -90,6 +90,7 @@ export default function FixedNavigationMenu({ user }: NavigationMenuDemoProps) {
               </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
+          {/* Temporarily removed Harmonize - uncomment when ready for payments/full platform
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
               <Link to="/harmonize" className={navigationMenuTriggerStyle()}>
@@ -97,11 +98,17 @@ export default function FixedNavigationMenu({ user }: NavigationMenuDemoProps) {
               </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
+          */}
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
-              <Link to="/contact" className={navigationMenuTriggerStyle()}>
-                Contact
-              </Link>
+              <a
+                href="https://venmo.com/u/mindharmony"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={navigationMenuTriggerStyle()}
+              >
+                Donate
+              </a>
             </NavigationMenuLink>
           </NavigationMenuItem>
           {/* Login Icon */}
@@ -159,12 +166,34 @@ export default function FixedNavigationMenu({ user }: NavigationMenuDemoProps) {
               <MobileNavLink to="/meditations" onClick={() => setIsOpen(false)}>
                 Meditations
               </MobileNavLink>
+              {/* Temporarily removed Harmonize - uncomment when ready for payments/full platform
               <MobileNavLink to="/harmonize" onClick={() => setIsOpen(false)}>
                 Harmonize
               </MobileNavLink>
-              <MobileNavLink to="/contact" onClick={() => setIsOpen(false)}>
-                Contact
-              </MobileNavLink>
+              */}
+              <a
+                href="https://venmo.com/u/mindharmony"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex w-full items-center py-2 text-lg font-medium transition-colors hover:text-[#1E3A5F]"
+                onClick={() => setIsOpen(false)}
+              >
+                Donate
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="ml-auto h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </a>
               {user ? (
                 <>
                   <MobileNavLink to="/profile" onClick={() => setIsOpen(false)}>
