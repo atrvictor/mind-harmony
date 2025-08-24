@@ -232,7 +232,7 @@ export default function EventCard({
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 font-medium">Phone (optional)</label>
+                    <label className="block mb-1 font-medium">Phone</label>
                     <input
                       type="tel"
                       name="phone"
