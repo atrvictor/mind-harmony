@@ -82,8 +82,8 @@ export default function ReservePage() {
               featured={primaryEvent.featured}
               getTicketsLink={primaryEvent.get_tickets_link}
               button={primaryEvent.button}
-              forceReserve
-              reservationEventId={1}
+              forceReserve={!primaryEvent.get_tickets_link}
+              reservationEventId={primaryEvent.get_tickets_link ? undefined : 1}
               soldOut={primarySoldOut}
             />
           </div>
