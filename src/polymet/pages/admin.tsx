@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import AdminEventsManagement from "@/polymet/components/admin-events-management";
-import { buildDefaultAnnouncement } from "@/lib/emailTemplates";
+import { buildDefaultAnnouncement } from "../../lib/emailTemplates";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -25,7 +25,7 @@ export default function AdminPage() {
   const [newEventMaxSeats, setNewEventMaxSeats] = React.useState<number>(50);
   const [creatingEvent, setCreatingEvent] = React.useState(false);
   const [sendingAnnouncement, setSendingAnnouncement] = React.useState(false);
-  const [sendingEventId, setSendingEventId] = React.useState<number | null>(null);
+  // Removed per simplified announce button state
 
   // Admin emails
   const adminEmails = ["atrvictor@gmail.com", "mashashen@yahoo.com"];
@@ -44,7 +44,8 @@ export default function AdminPage() {
           .select("id, name, max_seats");
         const { data: reservationsData, error: reservationsError } = await supabase
           .from("reservations")
-          .select("id, event_id, visitor_name, visitor_email, phone, seats, donation");
+          .select("id, event_id, visitor_name, visitor_email, phone, seats, donation, created_at")
+          .order("created_at", { ascending: false });
         // Fetch other dashboard data
         const { data: communityData, error: communityError } = await supabase
           .from("community")
@@ -318,8 +319,8 @@ export default function AdminPage() {
                               )}
                             </td>
                             <td className="px-4 py-2 align-top">
-                              <Button size="sm" variant="outline" onClick={() => handleSendAnnouncement(event.id)} disabled={!!sendingEventId}>
-                                {sendingEventId === event.id ? 'Sending...' : 'Send Announcement'}
+                              <Button size="sm" variant="outline" onClick={() => handleSendAnnouncement(event.id)}>
+                                Send Announcement
                               </Button>
                             </td>
                           </tr>
@@ -337,6 +338,7 @@ export default function AdminPage() {
                                         <th className="px-2 py-1 text-left">Phone</th>
                                         <th className="px-2 py-1 text-left">Seats</th>
                                         <th className="px-2 py-1 text-left">Donation</th>
+                                        <th className="px-2 py-1 text-left">Reserved</th>
                                         <th className="px-2 py-1 text-left">Delete</th>
                                       </tr>
                                     </thead>
@@ -348,6 +350,7 @@ export default function AdminPage() {
                                           <td className="px-2 py-1">{res.phone || '—'}</td>
                                           <td className="px-2 py-1">{res.seats}</td>
                                           <td className="px-2 py-1">{res.donation !== undefined && res.donation !== null ? `$${res.donation}` : "—"}</td>
+                                          <td className="px-2 py-1 text-xs text-gray-500">{res.created_at ? new Date(res.created_at).toLocaleString() : '—'}</td>
                                           <td className="px-2 py-1">
                                             <Button size="sm" variant="destructive" onClick={() => handleDeleteReservation(res.id)}>
                                               Delete
