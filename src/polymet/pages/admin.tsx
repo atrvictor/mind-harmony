@@ -47,11 +47,16 @@ export default function AdminPage() {
   const [composeBody, setComposeBody] = React.useState("");
   const [sendingCustom, setSendingCustom] = React.useState(false);
 
+  function normalizeEmail(e?: string | null) {
+    return (e || "").trim().toLowerCase();
+  }
+
   function toggleSelect(email?: string | null) {
-    if (!email) return;
+    const norm = normalizeEmail(email);
+    if (!norm) return;
     setSelectedEmails(prev => {
       const next = new Set(prev);
-      if (next.has(email)) next.delete(email); else next.add(email);
+      if (next.has(norm)) next.delete(norm); else next.add(norm);
       return next;
     });
   }
