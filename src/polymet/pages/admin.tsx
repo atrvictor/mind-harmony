@@ -2,6 +2,8 @@ import * as React from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import AdminEventsManagement from "@/polymet/components/admin-events-management";
 import { buildDefaultAnnouncement } from "../../lib/emailTemplates";
 
@@ -37,6 +39,65 @@ export default function AdminPage() {
     const hasTZ = /[zZ]|[+-]\d{2}:?\d{2}$/.test(dt);
     const d = new Date(hasTZ ? dt : dt + 'Z');
     return d.toLocaleString();
+  }
+
+  // Bulk email selection + compose state
+  const [selectedEmails, setSelectedEmails] = React.useState<Set<string>>(new Set());
+  const [composeSubject, setComposeSubject] = React.useState("");
+  const [composeBody, setComposeBody] = React.useState("");
+  const [sendingCustom, setSendingCustom] = React.useState(false);
+
+  function toggleSelect(email?: string | null) {
+    if (!email) return;
+    setSelectedEmails(prev => {
+      const next = new Set(prev);
+      if (next.has(email)) next.delete(email); else next.add(email);
+      return next;
+    });
+  }
+
+  function applyPreset(preset: "announcement" | "reminder" | "thankyou") {
+    if (preset === "announcement") {
+      setComposeSubject("Early Bird ends tomorrow — Sunset piano at Kate Sessions, Fri 6:30");
+      setComposeBody(
+        "Hi there,\n\nWe’re gathering this Friday at 6:30 PM at Kate Sessions Park for a grounding, restorative piano concert at sunset. I’ll guide a gentle narrative between songs that ties the set together. Early Bird ends tomorrow—reserve your spot if you’re planning to come.\n\nWith gratitude,\nVitiá"
+      );
+    } else if (preset === "reminder") {
+      setComposeSubject("Friendly reminder — Mind Harmony at Kate Sessions");
+      setComposeBody("Quick reminder about our upcoming sunset piano experience at Kate Sessions Park. Would love to see you there!\n\nWith gratitude,\nVitiá");
+    } else {
+      setComposeSubject("Thank you from Mind Harmony");
+      setComposeBody("Thank you for being part of Mind Harmony. Your presence and support mean the world. Hope to see you again soon!\n\nWith gratitude,\nVitiá");
+    }
+  }
+
+  async function handleSendCustom() {
+    const to = Array.from(selectedEmails);
+    if (to.length === 0) {
+      alert("Please select at least one recipient.");
+      return;
+    }
+    if (!composeSubject || !composeBody) {
+      alert("Please enter a subject and a message.");
+      return;
+    }
+    setSendingCustom(true);
+    try {
+      const safe = composeBody.replace(/</g, "&lt;");
+      const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;white-space:pre-wrap">${safe}</div>`;
+      const resp = await fetch('/api/sendAnnouncement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: composeSubject, to, html })
+      });
+      const text = await resp.text();
+      if (!resp.ok) throw new Error(text);
+      alert(`Sent to ${to.length} recipient(s).`);
+    } catch (e: any) {
+      alert(`Failed to send: ${e?.message || e}`);
+    } finally {
+      setSendingCustom(false);
+    }
   }
 
   React.useEffect(() => {
@@ -341,6 +402,7 @@ export default function AdminPage() {
                                   <table className="min-w-full text-sm">
                                     <thead>
                                       <tr>
+                                        <th className="px-2 py-1 text-left">Select</th>
                                         <th className="px-2 py-1 text-left">Name</th>
                                         <th className="px-2 py-1 text-left">Email</th>
                                         <th className="px-2 py-1 text-left">Phone</th>
@@ -352,6 +414,9 @@ export default function AdminPage() {
                                     <tbody>
                                       {eventReservations.map((res) => (
                                         <tr key={res.id}>
+                                          <td className="px-2 py-1">
+                                            <input type="checkbox" onChange={() => toggleSelect(res.visitor_email)} />
+                                          </td>
                                           <td className="px-2 py-1">{res.visitor_name}</td>
                                           <td className="px-2 py-1">{res.visitor_email}</td>
                                           <td className="px-2 py-1">{res.phone || '—'}</td>
@@ -382,10 +447,42 @@ export default function AdminPage() {
           {/* Existing dashboard sections */}
           <section className="mb-12">
             <h2 className="text-xl font-semibold mb-4">Community Signups</h2>
+            {/* Bulk email compose */}
+            <div className="mb-4 p-4 border rounded-lg bg-gray-50">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
+                <div className="md:col-span-2">
+                  <Input
+                    placeholder="Subject"
+                    value={composeSubject}
+                    onChange={(e) => setComposeSubject(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => applyPreset('announcement')}>Use Announcement</Button>
+                  <Button variant="outline" size="sm" onClick={() => applyPreset('reminder')}>Reminder</Button>
+                  <Button variant="outline" size="sm" onClick={() => applyPreset('thankyou')}>Thank You</Button>
+                </div>
+                <div className="text-sm text-gray-600">Selected: {Array.from(selectedEmails).length}</div>
+              </div>
+              <div className="mt-3">
+                <Textarea
+                  placeholder="Write your message..."
+                  value={composeBody}
+                  onChange={(e) => setComposeBody(e.target.value)}
+                  rows={5}
+                />
+              </div>
+              <div className="mt-3">
+                <Button onClick={handleSendCustom} disabled={sendingCustom}>
+                  {sendingCustom ? 'Sending...' : 'Send to Selected'}
+                </Button>
+              </div>
+            </div>
             <div className="overflow-x-auto rounded-lg border border-gray-200">
               <table className="min-w-full bg-white">
                 <thead>
                   <tr>
+                    <th className="px-4 py-2 border-b text-left">Select</th>
                     <th className="px-4 py-2 border-b text-left">Name</th>
                     <th className="px-4 py-2 border-b text-left">Email</th>
                     <th className="px-4 py-2 border-b text-left">Phone</th>
@@ -399,6 +496,7 @@ export default function AdminPage() {
                   ) : (
                     community.map((c, i) => (
                       <tr key={i} className="border-b last:border-b-0">
+                        <td className="px-4 py-2"><input type="checkbox" onChange={() => toggleSelect(c.email)} /></td>
                         <td className="px-4 py-2">{c.name}</td>
                         <td className="px-4 py-2">{c.email}</td>
                         <td className="px-4 py-2">{c.phone || '—'}</td>
