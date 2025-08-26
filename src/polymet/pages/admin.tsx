@@ -31,6 +31,14 @@ export default function AdminPage() {
   const adminEmails = ["atrvictor@gmail.com", "mashashen@yahoo.com"];
   const isAdmin = !!(user && user.email && adminEmails.includes(user.email));
 
+  function formatReserved(dt?: string) {
+    if (!dt) return '—';
+    // If the string lacks timezone info, assume UTC to avoid local misinterpretation
+    const hasTZ = /[zZ]|[+-]\d{2}:?\d{2}$/.test(dt);
+    const d = new Date(hasTZ ? dt : dt + 'Z');
+    return d.toLocaleString();
+  }
+
   React.useEffect(() => {
     if (!user) return;
     if (!isAdmin) return;
@@ -350,7 +358,7 @@ export default function AdminPage() {
                                           <td className="px-2 py-1">{res.phone || '—'}</td>
                                           <td className="px-2 py-1">{res.seats}</td>
                                           <td className="px-2 py-1">{res.donation !== undefined && res.donation !== null ? `$${res.donation}` : "—"}</td>
-                                          <td className="px-2 py-1 text-xs text-gray-500">{res.created_at ? new Date(res.created_at).toLocaleString() : '—'}</td>
+                                          <td className="px-2 py-1 text-xs text-gray-500">{formatReserved(res.created_at)}</td>
                                           <td className="px-2 py-1">
                                             <Button size="sm" variant="destructive" onClick={() => handleDeleteReservation(res.id)}>
                                               Delete
