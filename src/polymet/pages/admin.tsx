@@ -61,6 +61,15 @@ export default function AdminPage() {
     });
   }
 
+  function isSelected(email?: string | null) {
+    const norm = normalizeEmail(email);
+    return norm ? selectedEmails.has(norm) : false;
+  }
+
+  function clearSelected() {
+    setSelectedEmails(new Set());
+  }
+
   function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity") {
     if (preset === "announcement") {
       setComposeSubject("Early Bird ends tomorrow — Sunset piano at Kate Sessions, Fri 6:30");
@@ -431,7 +440,7 @@ export default function AdminPage() {
                                       {eventReservations.map((res) => (
                                         <tr key={res.id}>
                                           <td className="px-2 py-1">
-                                            <input type="checkbox" onChange={() => toggleSelect(res.visitor_email)} />
+                                            <input type="checkbox" checked={isSelected(res.visitor_email)} onChange={() => toggleSelect(res.visitor_email)} />
                                           </td>
                                           <td className="px-2 py-1">{res.visitor_name}</td>
                                           <td className="px-2 py-1">{res.visitor_email}</td>
@@ -465,21 +474,24 @@ export default function AdminPage() {
             <h2 className="text-xl font-semibold mb-4">Community Signups</h2>
             {/* Bulk email compose */}
             <div className="mb-4 p-4 border rounded-lg bg-gray-50">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
-                <div className="md:col-span-2">
-                  <Input
-                    placeholder="Subject"
-                    value={composeSubject}
-                    onChange={(e) => setComposeSubject(e.target.value)}
-                  />
-                </div>
-                <div className="flex gap-2">
+              <div className="mb-2">
+                <Input
+                  placeholder="Subject"
+                  value={composeSubject}
+                  onChange={(e) => setComposeSubject(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-2 justify-between">
+                <div className="flex flex-wrap gap-2">
                   <Button variant="outline" size="sm" onClick={() => applyPreset('announcement')}>Use Announcement</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('reminder')}>Reminder</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('thankyou')}>Thank You</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('ftcommunity')}>FT Community</Button>
                 </div>
-                <div className="text-sm text-gray-600">Selected: {Array.from(selectedEmails).length}</div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>Selected: {Array.from(selectedEmails).length}</span>
+                  <Button variant="outline" size="sm" onClick={clearSelected}>Clear</Button>
+                </div>
               </div>
               <div className="mt-3">
                 <Textarea
@@ -513,7 +525,7 @@ export default function AdminPage() {
                   ) : (
                     community.map((c, i) => (
                       <tr key={i} className="border-b last:border-b-0">
-                        <td className="px-4 py-2"><input type="checkbox" onChange={() => toggleSelect(c.email)} /></td>
+                        <td className="px-4 py-2"><input type="checkbox" checked={isSelected(c.email)} onChange={() => toggleSelect(c.email)} /></td>
                         <td className="px-4 py-2">{c.name}</td>
                         <td className="px-4 py-2">{c.email}</td>
                         <td className="px-4 py-2">{c.phone || '—'}</td>
