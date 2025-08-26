@@ -61,7 +61,7 @@ export default function AdminPage() {
     });
   }
 
-  function applyPreset(preset: "announcement" | "reminder" | "thankyou") {
+  function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity") {
     if (preset === "announcement") {
       setComposeSubject("Early Bird ends tomorrow — Sunset piano at Kate Sessions, Fri 6:30");
       setComposeBody(
@@ -70,6 +70,17 @@ export default function AdminPage() {
     } else if (preset === "reminder") {
       setComposeSubject("Friendly reminder — Mind Harmony at Kate Sessions");
       setComposeBody("Quick reminder about our upcoming sunset piano experience at Kate Sessions Park. Would love to see you there!\n\nWith gratitude,\nVitiá");
+    } else if (preset === "ftcommunity") {
+      setComposeSubject("🌅 Special Invite – MindHarmony Sunset Show, Friday Aug 29");
+      setComposeBody(
+        "Hello friend,\n\n" +
+        "Welcome to the MindHarmony community—it’s wonderful to have you here.\n\n" +
+        "I’d like to extend a special invitation to join us for the next MindHarmony Sunset Sound Journey on Friday, August 29th at 6:30pm at Kate Sessions Park. This evening will be an intimate gathering of live piano, meditation, and nature as the sun sets over the city.\n\n" +
+        "As part of this special invitation, you can reserve your spot here: https://www.mindharmony.life/reserve\n\n" +
+        "🎟 Note: Tickets for the public are available on Eventbrite, but this link is just for you—there’s no required ticket price. If you’d like to support MindHarmony, you’ll see an option to make a donation when reserving, but it’s not necessary.\n\n" +
+        "Bring a blanket, invite a friend, and come experience an evening of music and stillness under the open sky.\n\n" +
+        "With gratitude,\nVitiá Kulish and the Mind Harmony team."
+      );
     } else {
       setComposeSubject("Thank you from Mind Harmony");
       setComposeBody("Thank you for being part of Mind Harmony. Your presence and support mean the world. Hope to see you again soon!\n\nWith gratitude,\nVitiá");
@@ -466,6 +477,7 @@ export default function AdminPage() {
                   <Button variant="outline" size="sm" onClick={() => applyPreset('announcement')}>Use Announcement</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('reminder')}>Reminder</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('thankyou')}>Thank You</Button>
+                  <Button variant="outline" size="sm" onClick={() => applyPreset('ftcommunity')}>FT Community</Button>
                 </div>
                 <div className="text-sm text-gray-600">Selected: {Array.from(selectedEmails).length}</div>
               </div>
