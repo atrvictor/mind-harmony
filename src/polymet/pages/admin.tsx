@@ -345,7 +345,6 @@ export default function AdminPage() {
                                         <th className="px-2 py-1 text-left">Email</th>
                                         <th className="px-2 py-1 text-left">Phone</th>
                                         <th className="px-2 py-1 text-left">Seats</th>
-                                        <th className="px-2 py-1 text-left">Donation</th>
                                         <th className="px-2 py-1 text-left">Reserved</th>
                                         <th className="px-2 py-1 text-left">Delete</th>
                                       </tr>
@@ -357,7 +356,6 @@ export default function AdminPage() {
                                           <td className="px-2 py-1">{res.visitor_email}</td>
                                           <td className="px-2 py-1">{res.phone || '—'}</td>
                                           <td className="px-2 py-1">{res.seats}</td>
-                                          <td className="px-2 py-1">{res.donation !== undefined && res.donation !== null ? `$${res.donation}` : "—"}</td>
                                           <td className="px-2 py-1 text-xs text-gray-500">{formatReserved(res.created_at)}</td>
                                           <td className="px-2 py-1">
                                             <Button size="sm" variant="destructive" onClick={() => handleDeleteReservation(res.id)}>
