@@ -1,12 +1,14 @@
 import EventCard from "@/polymet/components/event-card";
 import { useState, useEffect } from "react";
 import { getAllEvents } from "@/lib/eventsDB";
+import { supabase } from "@/lib/supabase";
 import type { EventDB } from "@/lib/eventsDB";
 
 export default function ReservePage() {
   const [primaryEvent, setPrimaryEvent] = useState<EventDB | null>(null);
   const [loading, setLoading] = useState(true);
   const [primarySoldOut, setPrimarySoldOut] = useState(false);
+  const [reservationEventId, setReservationEventId] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     async function fetchEvents() {
@@ -17,6 +19,22 @@ export default function ReservePage() {
         const primary = upcoming[0] || null;
         setPrimaryEvent(primary);
         setPrimarySoldOut(!!primary?.sold_out);
+
+        // Map to legacy reservations event id by choosing the nearest upcoming legacy event
+        try {
+          const { data: upcomingLegacy } = await supabase
+            .from('events')
+            .select('id, event_date')
+            .gte('event_date', new Date().toISOString())
+            .order('event_date', { ascending: true })
+            .limit(1)
+            .maybeSingle();
+          if (upcomingLegacy?.id) {
+            setReservationEventId(upcomingLegacy.id);
+          }
+        } catch (e) {
+          // ignore mapping failure; reservation will fall back to component id
+        }
       } catch (error) {
         console.error('Failed to fetch events:', error);
       } finally {
@@ -82,8 +100,8 @@ export default function ReservePage() {
               featured={primaryEvent.featured}
               getTicketsLink={primaryEvent.get_tickets_link}
               button={primaryEvent.button}
-              forceReserve={!primaryEvent.get_tickets_link}
-              reservationEventId={primaryEvent.get_tickets_link ? undefined : 1}
+              forceReserve
+              reservationEventId={reservationEventId}
               soldOut={primarySoldOut}
             />
           </div>

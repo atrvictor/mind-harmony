@@ -183,7 +183,7 @@ export default function EventCard({
           <Button className="w-full" disabled>
             Coming Soon
           </Button>
-        ) : (!forceReserve && getTicketsLink) ? (
+        ) : (!forceReserve && getTicketsLink && !soldOut) ? (
           <a
             href={getTicketsLink}
             target="_blank"
