@@ -34,14 +34,14 @@ export default function AudioPlayer({
   // Controls persistent visibility of the title. Hover will still temporarily reveal it.
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
 
-  // Initialize audio element properties when mounted
+  // Initialize audio element properties when mounted or when loop changes
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.loop = loop;
     audio.volume = volume;
     audio.preload = "metadata";
-  }, []);
+  }, [loop]);
 
   // Reflect volume/mute changes on the element
   useEffect(() => {
@@ -50,6 +50,30 @@ export default function AudioPlayer({
     audio.muted = isMuted;
     audio.volume = volume;
   }, [isMuted, volume]);
+
+  // Auto-advance to next track when current ends (only when loop is disabled and onNext provided)
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onEnded = () => {
+      if (!loop && onNext) {
+        onNext();
+      }
+    };
+    audio.addEventListener('ended', onEnded);
+    return () => {
+      audio.removeEventListener('ended', onEnded);
+    };
+  }, [onNext, loop, src]);
+
+  // If source changes while playing, attempt to continue playback automatically
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.play().catch(() => {});
+    }
+  }, [src]);
 
   const handleTogglePlay = async () => {
     const audio = audioRef.current;

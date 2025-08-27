@@ -91,7 +91,7 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
       <AudioPlayer 
         src={currentTrack.src}
         title={currentTrack.title}
-        loop 
+        loop={false}
         showPrevNext={isAdmin}
         onPrev={isAdmin ? handlePrev : undefined}
         onNext={isAdmin ? handleNext : undefined}
