@@ -8,6 +8,11 @@ interface AudioPlayerProps {
   title?: string;
   /** Loop playback (enabled by default) */
   loop?: boolean;
+  /** Optional prev/next handlers (useful for admin playlist) */
+  onPrev?: () => void;
+  onNext?: () => void;
+  /** Show prev/next buttons when handlers provided */
+  showPrevNext?: boolean;
 }
 
 /**
@@ -18,6 +23,9 @@ export default function AudioPlayer({
   src = "/audio/your-song.mp3",
   title = "Your Song",
   loop = true,
+  onPrev,
+  onNext,
+  showPrevNext = false,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -152,6 +160,18 @@ export default function AudioPlayer({
           <div className="text-xs font-medium leading-tight whitespace-nowrap">{title}</div>
         </div>
 
+        {showPrevNext && (
+          <button
+            type="button"
+            aria-label="Previous"
+            onClick={onPrev}
+            className="inline-flex h-8 px-2 items-center justify-center rounded-full border bg-background border-border text-xs"
+            title="Previous"
+          >
+            ◀
+          </button>
+        )}
+
         <button
           type="button"
           aria-label={isPlaying ? "Pause" : "Play"}
@@ -181,6 +201,18 @@ export default function AudioPlayer({
           className="h-1 w-24 accent-[#1E3A5F]"
           aria-label="Volume"
         />
+
+        {showPrevNext && (
+          <button
+            type="button"
+            aria-label="Next"
+            onClick={onNext}
+            className="inline-flex h-8 px-2 items-center justify-center rounded-full border bg-background border-border text-xs"
+            title="Next"
+          >
+            ▶
+          </button>
+        )}
 
         {/* Hidden native audio element */}
         <audio ref={audioRef} src={src} preload="metadata" playsInline />

@@ -1,7 +1,7 @@
 import FixedNavigationMenu from "@/polymet/components/fixed-navigation-menu";
 import AudioPlayer from "@/polymet/components/audio-player";
 import Footer from "@/polymet/components/footer";
-import { MusicIcon } from "lucide-react";
+// import { MusicIcon } from "lucide-react";
 import { ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
@@ -12,6 +12,23 @@ interface MainLayoutProps {
 }
 
 export default function MainLayout({ children, user }: MainLayoutProps) {
+  const adminEmails = ["atrvictor@gmail.com", "mashashen@yahoo.com"]; 
+  const isAdmin = !!(user && user.email && adminEmails.includes(user.email));
+
+  const adminTracks = [
+    { src: "/audio/Felt%20Before%20Whisper.mp3", title: "Before Whisper Vitiá Kulish" },
+    { src: "/audio/Felt%20Whispering%20Heart.mp3", title: "Whispering Heart Vitiá Kulish" },
+    { src: "/audio/Felt%20Before%20Kindred.mp3", title: "Before Kindred Vitiá Kulish" },
+    { src: "/audio/Kindred%20Spirit%20Felt.mp3", title: "Kindred Spirit Vitiá Kulish" },
+  ];
+  const [trackIndex, setTrackIndex] = useState(0);
+  const currentTrack = isAdmin ? adminTracks[trackIndex] : { src: "/audio/Kindred%20Spirit%20Felt.mp3", title: "Kindred Spirit Vitiá Kulish" };
+  const handlePrev = () => {
+    setTrackIndex((i) => (i - 1 + adminTracks.length) % adminTracks.length);
+  };
+  const handleNext = () => {
+    setTrackIndex((i) => (i + 1) % adminTracks.length);
+  };
   // Add a state to track scroll position 
   const [scrollPosition, setScrollPosition] = useState(0);
   
@@ -70,8 +87,15 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
 
       <Footer />
 
-      {/* Floating audio player; plays your uploaded track */}
-      <AudioPlayer src="/audio/Kindred%20Spirit%20Felt.mp3" title="Kindred Spirit Vitiá Kulish" loop />
+      {/* Floating audio player; shows admin playlist if logged-in admin */}
+      <AudioPlayer 
+        src={currentTrack.src}
+        title={currentTrack.title}
+        loop 
+        showPrevNext={isAdmin}
+        onPrev={isAdmin ? handlePrev : undefined}
+        onNext={isAdmin ? handleNext : undefined}
+      />
     </div>
   );
 }
