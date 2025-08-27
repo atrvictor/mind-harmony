@@ -66,14 +66,28 @@ export default function AudioPlayer({
     };
   }, [onNext, loop, src]);
 
-  // If source changes while playing, attempt to continue playback automatically
+  // If source changes, (re)load and if currently playing, auto-play the new source
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (isPlaying) {
-      audio.play().catch(() => {});
-    }
-  }, [src]);
+    // Ensure fresh load for new source
+    const autoPlay = isPlaying;
+    const onCanPlay = () => {
+      if (autoPlay) {
+        audio.play().catch(() => {});
+      }
+      audio.removeEventListener('canplay', onCanPlay);
+    };
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+    } catch {}
+    audio.addEventListener('canplay', onCanPlay);
+    audio.load();
+    return () => {
+      audio.removeEventListener('canplay', onCanPlay);
+    };
+  }, [src, isPlaying]);
 
   const handleTogglePlay = async () => {
     const audio = audioRef.current;
