@@ -46,6 +46,7 @@ export default function AdminPage() {
   const [composeSubject, setComposeSubject] = React.useState("");
   const [composeBody, setComposeBody] = React.useState("");
   const [sendingCustom, setSendingCustom] = React.useState(false);
+  const [composeIsHtml, setComposeIsHtml] = React.useState(false);
 
   function normalizeEmail(e?: string | null) {
     return (e || "").trim().toLowerCase();
@@ -128,8 +129,9 @@ export default function AdminPage() {
     }
     setSendingCustom(true);
     try {
-      const safe = composeBody.replace(/</g, "&lt;");
-      const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;white-space:pre-wrap">${safe}</div>`;
+      const html = composeIsHtml
+        ? composeBody
+        : `<div style=\"font-family:Arial,sans-serif;line-height:1.6;color:#111;white-space:pre-wrap\">${composeBody.replace(/</g, "&lt;")}</div>`;
       const resp = await fetch('/api/sendAnnouncement', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -88,7 +88,7 @@ export default function HomePage() {
       <div className="relative">
         <MeditationTeaser />
 
-        <div className="absolute inset-0 flex items-center justify-center mt-20 lg:mt-32 opacity-20 pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center mt-60 lg:mt-72 opacity-20 pointer-events-none">
           <AnimatedTreeOfLife
             color="#1E3A5F"
             accentColor="#D4AF37"
