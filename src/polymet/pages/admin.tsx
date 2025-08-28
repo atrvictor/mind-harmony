@@ -70,7 +70,7 @@ export default function AdminPage() {
     setSelectedEmails(new Set());
   }
 
-  function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity") {
+  function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity" | "details") {
     if (preset === "announcement") {
       setComposeSubject("Early Bird ends tomorrow — Sunset piano at Kate Sessions, Fri 6:30");
       setComposeBody(
@@ -89,6 +89,26 @@ export default function AdminPage() {
         "🎟 Note: Tickets for the public are available on Eventbrite, but this link is just for you—there’s no required ticket price. If you’d like to support MindHarmony, you’ll see an option to make a donation when reserving, but it’s not necessary.\n\n" +
         "Bring a blanket, invite a friend, and come experience an evening of music and stillness under the open sky.\n\n" +
         "With gratitude,\nVitiá Kulish and the Mind Harmony team."
+      );
+    } else if (preset === "details") {
+      setComposeSubject("Your Mind Harmony reservation — Friday’s details inside");
+      setComposeBody(
+        "Mind Harmony presents - Vitià Kulish, Piano Meditation Experience\n" +
+        "Dear friend,\n\n" +
+        "Step into an evening where music becomes a doorway to something deeper. As Vitià’s fingers glide across the keys, each note drifts like sunlight through open windows, carrying you to faraway landscapes of memory, joy, and quiet wonder. The air feels lighter, the world softer, and for a while, time bends to the rhythm of the piano.\n\n" +
+        "This is more than a concert—it’s a journey. Gentle melodies invite you to let go of what you’ve been carrying, while shimmering harmonies open space for new dreams to arrive. You may find yourself smiling without reason, breathing more deeply, or feeling a warmth you can’t quite name.\n\n" +
+        "As the final notes fade, the floor opens for those who feel moved to share their reflections—brief stories, feelings, or moments the music stirred within them—adding their voices to the night’s magic.\n\n" +
+        "What to bring:\n" +
+        "A journal (for those post-music sparks of insight)\n" +
+        "A cozy layer or something soft\n" +
+        "Something to sit/lie on\n" +
+        "A curious, open heart\n" +
+        "Snacks or a picnic\n" +
+        "Mind Harmony presents - Vitià Kulish, Piano Meditation Experience.\n" +
+        "Friday, August 29, 2025 • 6:30 PM – 8:00 PM (PDT)\n" +
+        "Kate Sessions Memorial Park\n" +
+        "5115 Soledad Road\n" +
+        "San Diego, CA 92109"
       );
     } else {
       setComposeSubject("Thank you from Mind Harmony");
@@ -487,6 +507,7 @@ export default function AdminPage() {
                   <Button variant="outline" size="sm" onClick={() => applyPreset('reminder')}>Reminder</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('thankyou')}>Thank You</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('ftcommunity')}>FT Community</Button>
+                  <Button variant="outline" size="sm" onClick={() => applyPreset('details')}>Details</Button>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <span>Selected: {Array.from(selectedEmails).length}</span>
