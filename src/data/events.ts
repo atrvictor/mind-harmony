@@ -35,7 +35,8 @@ export interface Event {
 function parseEventDateTime(dateStr: string, timeStr?: string): Date | null {
   if (!dateStr) return null;
   try {
-    const cleanedDate = dateStr.replace(/(\d+)(st|nd|rd|th)/, '$1');
+    // Remove ordinal suffixes (st, nd, rd, th) from dates
+    const cleanedDate = dateStr.replace(/(\d+)(st|nd|rd|th)/g, '$1');
     const combined = timeStr ? `${cleanedDate} ${timeStr}` : cleanedDate;
     const parsed = new Date(combined);
     return isNaN(parsed.getTime()) ? null : parsed;
@@ -73,8 +74,9 @@ function mapEventFromDB(dbEvent: EventDB): Event {
     image: dbEvent.image,
     featured: dbEvent.featured || undefined,
     getTicketsLink: dbEvent.get_tickets_link || undefined,
-    // Automatically mark past events; otherwise use normalized button text
-    button: isPast ? 'Past Event' : (normalizedCaseButton || undefined),
+    // Special case for Event 11 (Piano Meditation Experience) - always show Get Tickets
+    // Automatically mark past events; otherwise use normalized button text  
+    button: dbEvent.id === 11 ? 'Get Tickets' : (isPast ? 'Past Event' : (normalizedCaseButton || undefined)),
   };
 }
 

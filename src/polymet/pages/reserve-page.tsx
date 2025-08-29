@@ -6,9 +6,12 @@ import type { EventDB } from "@/lib/eventsDB";
 
 export default function ReservePage() {
   const [primaryEvent, setPrimaryEvent] = useState<EventDB | null>(null);
+  const [septemberEvent, setSeptemberEvent] = useState<EventDB | null>(null);
   const [loading, setLoading] = useState(true);
   const [primarySoldOut, setPrimarySoldOut] = useState(false);
+  const [septemberSoldOut, setSeptemberSoldOut] = useState(false);
   const [reservationEventId, setReservationEventId] = useState<number | undefined>(undefined);
+  const [septemberReservationId, setSeptemberReservationId] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     async function fetchEvents() {
@@ -20,17 +23,45 @@ export default function ReservePage() {
         setPrimaryEvent(primary);
         setPrimarySoldOut(!!primary?.sold_out);
 
-        // Map to legacy reservations event id by choosing the nearest upcoming legacy event
+        // Find the September 14th event (Event 11)
+        const september = events.find(e => e.id === 11);
+        setSeptemberEvent(september);
+        setSeptemberSoldOut(!!september?.sold_out);
+
+        // Map to legacy reservations event ids
         try {
-          const { data: upcomingLegacy } = await supabase
+          // Get all legacy events to map correctly
+          const { data: legacyEvents } = await supabase
             .from('events')
-            .select('id, event_date')
-            .gte('event_date', new Date().toISOString())
-            .order('event_date', { ascending: true })
-            .limit(1)
-            .maybeSingle();
-          if (upcomingLegacy?.id) {
-            setReservationEventId(upcomingLegacy.id);
+            .select('id, event_date, max_seats')
+            .order('event_date', { ascending: true });
+          
+          if (legacyEvents) {
+            // Map primary event (August 29th) to legacy event ID 2
+            const augustLegacy = legacyEvents.find(e => 
+              e.event_date && e.event_date.includes('2025-08-30')
+            );
+            if (augustLegacy?.id) {
+              setReservationEventId(augustLegacy.id);
+              
+              // Check if August event is sold out by checking reservations
+              const { data: augustReservations } = await supabase
+                .from('reservations')
+                .select('seats')
+                .eq('event_id', augustLegacy.id);
+                
+              const totalReserved = augustReservations?.reduce((sum, res) => sum + res.seats, 0) || 0;
+              const isSoldOut = totalReserved >= augustLegacy.max_seats;
+              setPrimarySoldOut(isSoldOut);
+            }
+            
+            // Map September event to the new legacy event ID 3
+            const septemberLegacy = legacyEvents.find(e => 
+              e.event_date && e.event_date.includes('2025-09-14')
+            );
+            if (septemberLegacy?.id) {
+              setSeptemberReservationId(septemberLegacy.id);
+            }
           }
         } catch (e) {
           // ignore mapping failure; reservation will fall back to component id
@@ -50,9 +81,9 @@ export default function ReservePage() {
     </div>;
   }
 
-  if (!primaryEvent) {
+  if (!primaryEvent && !septemberEvent) {
     return <div className="min-h-screen bg-[#F5F0E5]/30 flex items-center justify-center">
-      <div>Event not found</div>
+      <div>No events found</div>
     </div>;
   }
 
@@ -78,34 +109,55 @@ export default function ReservePage() {
         </div>
       </div>
 
-      {/* Event Section */}
+      {/* Events Section */}
       <section className="py-16 px-4 md:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-4">Featured Event</h2>
+            <h2 className="text-3xl font-bold mb-4">Upcoming Events</h2>
             <p className="text-muted-foreground">
-              Don't miss this transformative experience
+              Reserve your spot for these transformative experiences
             </p>
           </div>
           
-          <div className="max-w-2xl mx-auto">
-               <EventCard
-              id={primaryEvent.id}
-              title={primaryEvent.title}
-              date={primaryEvent.date}
-              time={primaryEvent.time}
-              location={primaryEvent.location}
-              description={primaryEvent.description}
-              image={primaryEvent.image}
-              featured={primaryEvent.featured}
-              getTicketsLink={primaryEvent.get_tickets_link}
-              button={primaryEvent.button}
-              forceReserve
-              reservationEventId={reservationEventId}
-              soldOut={primarySoldOut}
-            />
+          <div className="max-w-2xl mx-auto space-y-8">
+            {/* Primary Event */}
+            {primaryEvent && (
+              <EventCard
+                id={primaryEvent.id}
+                title={primaryEvent.title}
+                date={primaryEvent.date}
+                time={primaryEvent.time}
+                location={primaryEvent.location}
+                description={primaryEvent.description}
+                image={primaryEvent.image}
+                featured={primaryEvent.featured}
+                getTicketsLink={primaryEvent.get_tickets_link}
+                button={primaryEvent.button}
+                forceReserve
+                reservationEventId={reservationEventId}
+                soldOut={primarySoldOut}
+              />
+            )}
+            
+            {/* September 14th Event */}
+            {septemberEvent && (
+              <EventCard
+                id={septemberEvent.id}
+                title={septemberEvent.title}
+                date={septemberEvent.date}
+                time={septemberEvent.time}
+                location={septemberEvent.location}
+                description={septemberEvent.description}
+                image={septemberEvent.image}
+                featured={false}
+                getTicketsLink={septemberEvent.get_tickets_link}
+                button="Reserve Your Spot"
+                forceReserve
+                reservationEventId={septemberReservationId}
+                soldOut={septemberSoldOut}
+              />
+            )}
           </div>
-          {/* Secondary event intentionally removed for clarity; only current upcoming event is reservable */}
         </div>
       </section>
     </div>

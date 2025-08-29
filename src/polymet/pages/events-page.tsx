@@ -34,7 +34,7 @@ export default function EventsPage() {
         image={event.image}
         location={event.location}
         getTicketsLink={event.getTicketsLink}
-        featured={event.id === 1}
+        featured={event.featured}
         suppressFeaturedLayout={true}
         button={event.button}
       />
