@@ -47,6 +47,7 @@ export default function AdminPage() {
   const [composeBody, setComposeBody] = React.useState("");
   const [sendingCustom, setSendingCustom] = React.useState(false);
   const [composeIsHtml, setComposeIsHtml] = React.useState(false);
+  const [deletingCommunity, setDeletingCommunity] = React.useState<Set<string>>(new Set());
 
   function normalizeEmail(e?: string | null) {
     return (e || "").trim().toLowerCase();
@@ -65,6 +66,52 @@ export default function AdminPage() {
   function isSelected(email?: string | null) {
     const norm = normalizeEmail(email);
     return norm ? selectedEmails.has(norm) : false;
+  }
+
+  async function deleteCommunityMember(email: string, name?: string) {
+    const confirmMessage = name 
+      ? `Are you sure you want to delete "${name}" (${email}) from the community?`
+      : `Are you sure you want to delete ${email} from the community?`;
+      
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    setDeletingCommunity(prev => new Set(prev).add(email));
+
+    try {
+      const { error } = await supabase
+        .from('community')
+        .delete()
+        .eq('email', email);
+
+      if (error) {
+        console.error('Error deleting community member:', error);
+        alert('Failed to delete community member. Please try again.');
+        return;
+      }
+
+      // Remove from local state
+      setCommunity(prev => prev.filter(c => c.email !== email));
+      
+      // Remove from selected emails if it was selected
+      setSelectedEmails(prev => {
+        const next = new Set(prev);
+        next.delete(normalizeEmail(email));
+        return next;
+      });
+
+      console.log(`Successfully deleted ${email} from community`);
+    } catch (err) {
+      console.error('Error deleting community member:', err);
+      alert('Failed to delete community member. Please try again.');
+    } finally {
+      setDeletingCommunity(prev => {
+        const next = new Set(prev);
+        next.delete(email);
+        return next;
+      });
+    }
   }
 
   function clearSelected() {
@@ -540,11 +587,12 @@ export default function AdminPage() {
                     <th className="px-4 py-2 border-b text-left">Phone</th>
                     <th className="px-4 py-2 border-b text-left">Interest</th>
                     <th className="px-4 py-2 border-b text-left">Signed Up</th>
+                    <th className="px-4 py-2 border-b text-left">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {community.length === 0 ? (
-                    <tr><td colSpan={5} className="px-4 py-2 text-center text-gray-500">No signups yet.</td></tr>
+                    <tr><td colSpan={7} className="px-4 py-2 text-center text-gray-500">No signups yet.</td></tr>
                   ) : (
                     community.map((c, i) => (
                       <tr key={i} className="border-b last:border-b-0">
@@ -554,6 +602,17 @@ export default function AdminPage() {
                         <td className="px-4 py-2">{c.phone || '—'}</td>
                         <td className="px-4 py-2">{c.interest}</td>
                         <td className="px-4 py-2 text-sm text-gray-500">{c.created_at ? new Date(c.created_at).toLocaleString() : ""}</td>
+                        <td className="px-4 py-2">
+                          <Button
+                            onClick={() => deleteCommunityMember(c.email, c.name)}
+                            disabled={deletingCommunity.has(c.email)}
+                            variant="destructive"
+                            size="sm"
+                            className="text-xs px-2 py-1"
+                          >
+                            {deletingCommunity.has(c.email) ? 'Deleting...' : 'Delete'}
+                          </Button>
+                        </td>
                       </tr>
                     ))
                   )}
