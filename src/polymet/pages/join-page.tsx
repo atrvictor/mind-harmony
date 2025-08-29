@@ -79,7 +79,7 @@ export default function JoinPage() {
     if (isSubmitted) {
       const timer = setTimeout(() => {
         window.location.href = '/';
-      }, 3000); // Redirect after 3 seconds
+      }, 2000); // Redirect after 2 seconds
 
       return () => clearTimeout(timer);
     }
