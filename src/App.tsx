@@ -14,6 +14,7 @@ import ContactPage from "@/polymet/pages/contact-page";
 import PricingPage from "@/polymet/pages/pricing-page";
 import ProfilePage from "@/polymet/pages/profile-page";
 import ProgramPage from "@/polymet/pages/program-page";
+import JoinPage from "@/polymet/pages/join-page";
 import ResetPasswordPage from "@/polymet/pages/reset-password";
 import AdminSetupPage from "@/polymet/pages/admin-setup";
 import LoginPage from "@/polymet/pages/login-page";
@@ -192,6 +193,7 @@ export default function MindHarmonyPrototype() {
               <ProgramPage />
             </AuthenticatedLayout>
           } />
+          <Route path="/join" element={<JoinPage />} />
           
           {/* Auth routes */}
           <Route path="/login" element={<LoginPage />} />
