@@ -70,6 +70,9 @@ export default function FixedNavigationMenu({ user }: NavigationMenuDemoProps) {
                 <ListItem to="/events" title="Events">
                   Explore our upcoming events and sessions
                 </ListItem>
+                <ListItem to="/program" title="Program">
+                  Discover our transformative program offerings
+                </ListItem>
                 <ListItem to="/contact" title="Contact">
                   Get in touch with our team
                 </ListItem>
@@ -87,6 +90,13 @@ export default function FixedNavigationMenu({ user }: NavigationMenuDemoProps) {
             <NavigationMenuLink asChild>
               <Link to="/meditations" className={navigationMenuTriggerStyle()}>
                 Meditations
+              </Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link to="/program" className={navigationMenuTriggerStyle()}>
+                Program
               </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>

@@ -13,6 +13,7 @@ import MeditationsPage from "@/polymet/pages/meditations-page";
 import ContactPage from "@/polymet/pages/contact-page";
 import PricingPage from "@/polymet/pages/pricing-page";
 import ProfilePage from "@/polymet/pages/profile-page";
+import ProgramPage from "@/polymet/pages/program-page";
 import ResetPasswordPage from "@/polymet/pages/reset-password";
 import AdminSetupPage from "@/polymet/pages/admin-setup";
 import LoginPage from "@/polymet/pages/login-page";
@@ -184,6 +185,11 @@ export default function MindHarmonyPrototype() {
           <Route path="/reserve" element={
             <AuthenticatedLayout>
               <ReservePage />
+            </AuthenticatedLayout>
+          } />
+          <Route path="/program" element={
+            <AuthenticatedLayout>
+              <ProgramPage />
             </AuthenticatedLayout>
           } />
           
