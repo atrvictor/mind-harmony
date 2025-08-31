@@ -171,8 +171,7 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
       {showMultiTrackHint && (
         <div className="fixed right-4 z-[9997]" style={{ top: '8rem' }}>
           <div className="pointer-events-none inline-flex items-center gap-2 rounded-md bg-black/70 text-white px-3 py-1 shadow-lg">
-            <span className="text-xs font-semibold tracking-wide">{adminTracks.length} tracks available</span>
-            <span className="text-xs opacity-90">Click ▶ then ▶ to skip</span>
+            <span className="text-xs font-semibold tracking-wide">{adminTracks.length} tracks now available</span>
           </div>
         </div>
       )}
