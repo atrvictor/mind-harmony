@@ -133,6 +133,15 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
         userEmail={user?.email ?? undefined}
         userId={user?.id ?? undefined}
       />
+
+      {(isAdmin || hasMusic) && adminTracks.length > 1 && (
+        <div className="fixed top-[6.5rem] right-4 z-[9998]">
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#1E3A5F] text-white px-3 py-1 shadow-lg">
+            <span className="text-xs font-semibold tracking-wide">{adminTracks.length} tracks available</span>
+            <span className="text-xs opacity-90">Tap ▶ then ▶ to skip</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
