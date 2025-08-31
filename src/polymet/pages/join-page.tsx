@@ -72,18 +72,13 @@ export default function JoinPage() {
     
     setIsSubmitting(false);
     setIsSubmitted(true);
+    // Redirect immediately to homepage for a clearer flow
+    try {
+      window.location.href = '/';
+    } catch {}
   }
 
-  // Auto-redirect to main page after successful submission
-  useEffect(() => {
-    if (isSubmitted) {
-      const timer = setTimeout(() => {
-        window.location.href = '/';
-      }, 2000); // Redirect after 2 seconds
-
-      return () => clearTimeout(timer);
-    }
-  }, [isSubmitted]);
+  // Removed delayed redirect to avoid timing inconsistencies
 
   if (isSubmitted) {
     return (

@@ -13,6 +13,10 @@ interface AudioPlayerProps {
   onNext?: () => void;
   /** Show prev/next buttons when handlers provided */
   showPrevNext?: boolean;
+  /** Logged-in user email (for tracking) */
+  userEmail?: string;
+  /** Logged-in user id (for tracking) */
+  userId?: string;
 }
 
 /**
@@ -26,6 +30,8 @@ export default function AudioPlayer({
   onPrev,
   onNext,
   showPrevNext = false,
+  userEmail,
+  userId,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -56,6 +62,25 @@ export default function AudioPlayer({
     const audio = audioRef.current;
     if (!audio) return;
     const onEnded = () => {
+      try {
+        const rid = localStorage.getItem('mh_rid') || undefined;
+        const campaign = localStorage.getItem('mh_campaign') || undefined;
+        fetch('/api/trackAudio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userEmail,
+            userId,
+            trackSrc: src,
+            trackTitle: title,
+            action: 'ended',
+            position: audio.currentTime,
+            duration: isFinite(audio.duration) ? audio.duration : undefined,
+            rid,
+            campaign
+          })
+        }).catch(() => {});
+      } catch {}
       if (!loop && onNext) {
         onNext();
       }
@@ -95,6 +120,25 @@ export default function AudioPlayer({
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
+      try {
+        const rid = localStorage.getItem('mh_rid') || undefined;
+        const campaign = localStorage.getItem('mh_campaign') || undefined;
+        await fetch('/api/trackAudio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userEmail,
+            userId,
+            trackSrc: src,
+            trackTitle: title,
+            action: 'pause',
+            position: audio.currentTime,
+            duration: isFinite(audio.duration) ? audio.duration : undefined,
+            rid,
+            campaign
+          })
+        });
+      } catch {}
       return;
     }
     try {
@@ -102,6 +146,25 @@ export default function AudioPlayer({
       setIsPlaying(true);
       // Ensure the title is collapsed when playback starts
       setIsExpanded(false);
+      try {
+        const rid = localStorage.getItem('mh_rid') || undefined;
+        const campaign = localStorage.getItem('mh_campaign') || undefined;
+        await fetch('/api/trackAudio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userEmail,
+            userId,
+            trackSrc: src,
+            trackTitle: title,
+            action: 'play',
+            position: audio.currentTime,
+            duration: isFinite(audio.duration) ? audio.duration : undefined,
+            rid,
+            campaign
+          })
+        });
+      } catch {}
     } catch (err) {
       // Autoplay restrictions or missing file
       setIsPlaying(false);

@@ -28,6 +28,8 @@ export default function AdminPage() {
   const [creatingEvent, setCreatingEvent] = React.useState(false);
   const [sendingAnnouncement, setSendingAnnouncement] = React.useState(false);
   // Removed per simplified announce button state
+  const [sendingMagicLinks, setSendingMagicLinks] = React.useState(false);
+  const [magicLinksResult, setMagicLinksResult] = React.useState<string>("");
 
   // Admin emails
   const adminEmails = ["atrvictor@gmail.com", "mashashen@yahoo.com"];
@@ -41,12 +43,39 @@ export default function AdminPage() {
     return d.toLocaleString();
   }
 
+  async function handleSendMagicLinks() {
+    if (!isAdmin) return;
+    if (!confirm('Send magic sign-in links? OK = to selected recipients (if any), or to all community if none selected.')) return;
+    setSendingMagicLinks(true);
+    setMagicLinksResult("");
+    try {
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const resp = await fetch('/api/sendMagicLinksToCommunity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ 
+          campaign: 'concert_followup',
+          emails: Array.from(selectedEmails)
+        })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error || 'Failed');
+      setMagicLinksResult(`Sent: ${data.sent} emails`);
+      alert(`Magic links sent successfully to ${data.sent} recipient(s).`);
+    } catch (e: any) {
+      setMagicLinksResult(`Error: ${e?.message || e}`);
+      alert(`Failed to send magic links: ${e?.message || e}`);
+    } finally {
+      setSendingMagicLinks(false);
+    }
+  }
+
   // Bulk email selection + compose state
   const [selectedEmails, setSelectedEmails] = React.useState<Set<string>>(new Set());
   const [composeSubject, setComposeSubject] = React.useState("");
   const [composeBody, setComposeBody] = React.useState("");
   const [sendingCustom, setSendingCustom] = React.useState(false);
-  const [composeIsHtml, setComposeIsHtml] = React.useState(false);
+  const [composeIsHtml] = React.useState(false);
   const [deletingCommunity, setDeletingCommunity] = React.useState<Set<string>>(new Set());
 
   function normalizeEmail(e?: string | null) {
@@ -571,10 +600,16 @@ export default function AdminPage() {
                   rows={5}
                 />
               </div>
-              <div className="mt-3">
+              <div className="mt-3 flex items-center gap-2 flex-wrap">
                 <Button onClick={handleSendCustom} disabled={sendingCustom}>
                   {sendingCustom ? 'Sending...' : 'Send to Selected'}
                 </Button>
+                <Button variant="secondary" onClick={handleSendMagicLinks} disabled={sendingMagicLinks}>
+                  {sendingMagicLinks ? 'Sending Magic Links...' : 'Send Magic Links to Community'}
+                </Button>
+                {magicLinksResult && (
+                  <span className="text-sm text-gray-600">{magicLinksResult}</span>
+                )}
               </div>
             </div>
             <div className="overflow-x-auto rounded-lg border border-gray-200">

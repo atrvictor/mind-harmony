@@ -5,6 +5,7 @@ import Footer from "@/polymet/components/footer";
 import { ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ interface MainLayoutProps {
 export default function MainLayout({ children, user }: MainLayoutProps) {
   const adminEmails = ["atrvictor@gmail.com", "mashashen@yahoo.com"]; 
   const isAdmin = !!(user && user.email && adminEmails.includes(user.email));
+  const [hasMusic, setHasMusic] = useState(false);
 
   const adminTracks = [
     { src: "/audio/Felt%20Before%20Whisper.mp3", title: "Before Whisper Vitiá Kulish" },
@@ -22,7 +24,7 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
     { src: "/audio/Kindred%20Spirit%20Felt.mp3", title: "Kindred Spirit Vitiá Kulish" },
   ];
   const [trackIndex, setTrackIndex] = useState(0);
-  const currentTrack = isAdmin ? adminTracks[trackIndex] : { src: "/audio/Kindred%20Spirit%20Felt.mp3", title: "Kindred Spirit Vitiá Kulish" };
+  const currentTrack = (isAdmin || hasMusic) ? adminTracks[trackIndex] : { src: "/audio/Kindred%20Spirit%20Felt.mp3", title: "Kindred Spirit Vitiá Kulish" };
   const handlePrev = () => {
     setTrackIndex((i) => (i - 1 + adminTracks.length) % adminTracks.length);
   };
@@ -31,6 +33,39 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
   };
   // Add a state to track scroll position 
   const [scrollPosition, setScrollPosition] = useState(0);
+  
+  // Persist rid/campaign if present on landing
+  useEffect(() => {
+    try {
+      const url = new URL(window.location.href);
+      const rid = url.searchParams.get('rid');
+      const camp = url.searchParams.get('campaign');
+      if (rid) localStorage.setItem('mh_rid', rid);
+      if (camp) localStorage.setItem('mh_campaign', camp);
+    } catch {}
+  }, []);
+
+  // Check if this user has music access (non-admin unlock)
+  useEffect(() => {
+    let active = true;
+    async function checkMusic() {
+      try {
+        if (!user?.email) { if (active) setHasMusic(false); return; }
+        const { data, error } = await supabase
+          .from('music_access')
+          .select('email')
+          .eq('email', user.email)
+          .maybeSingle();
+        if (!active) return;
+        setHasMusic(!!data && !error);
+      } catch {
+        if (!active) return;
+        setHasMusic(false);
+      }
+    }
+    checkMusic();
+    return () => { active = false; };
+  }, [user?.email]);
   
   useEffect(() => {
     // Function to update scroll position
@@ -95,6 +130,8 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
         showPrevNext={isAdmin}
         onPrev={isAdmin ? handlePrev : undefined}
         onNext={isAdmin ? handleNext : undefined}
+        userEmail={user?.email ?? undefined}
+        userId={user?.id ?? undefined}
       />
     </div>
   );
