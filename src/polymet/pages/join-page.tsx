@@ -24,6 +24,8 @@ const formSchema = z.object({
 export default function JoinPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [successTitle, setSuccessTitle] = useState("Thank You for Joining!");
+  const [successMessage, setSuccessMessage] = useState("Welcome to the Mind Harmony community! You'll receive updates about upcoming events, meditation sessions, and exclusive content.");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,7 +52,18 @@ export default function JoinPage() {
       });
       
     if (communityError) {
-      form.setError("email", { message: communityError.message });
+      const msg = (communityError.message || "").toLowerCase();
+      const isDuplicate = communityError.code === '23505' || msg.includes('duplicate') || msg.includes('already exists');
+      if (isDuplicate) {
+        // Friendly duplicate message and proceed as a soft success
+        setSuccessTitle("You're already in the circle ✨");
+        setSuccessMessage("This email has already joined previously. Taking you to the homepage...");
+        setIsSubmitting(false);
+        setIsSubmitted(true);
+        setTimeout(() => { try { window.location.href = '/'; } catch {} }, 1200);
+        return;
+      }
+      form.setError("email", { message: "Something went wrong. Please try again or use a different email." });
       setIsSubmitting(false);
       return;
     }
@@ -71,11 +84,11 @@ export default function JoinPage() {
     }
     
     setIsSubmitting(false);
+    setSuccessTitle("Thank You for Joining!");
+    setSuccessMessage("Welcome to the Mind Harmony community! You'll receive updates about upcoming events, meditation sessions, and exclusive content.");
     setIsSubmitted(true);
-    // Redirect immediately to homepage for a clearer flow
-    try {
-      window.location.href = '/';
-    } catch {}
+    // Show confirmation, then redirect shortly after
+    setTimeout(() => { try { window.location.href = '/'; } catch {} }, 1200);
   }
 
   // Removed delayed redirect to avoid timing inconsistencies
@@ -101,11 +114,8 @@ export default function JoinPage() {
                 ></path>
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Thank You for Joining!</h2>
-            <p className="text-gray-600 mb-6">
-              Welcome to the Mind Harmony community! You'll receive updates about upcoming events, 
-              meditation sessions, and exclusive content.
-            </p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{successTitle}</h2>
+            <p className="text-gray-600 mb-6">{successMessage}</p>
             <p className="text-sm text-gray-500">
               Redirecting you to our main page in a few seconds...
             </p>

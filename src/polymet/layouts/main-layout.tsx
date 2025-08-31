@@ -45,7 +45,7 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
     } catch {}
   }, []);
 
-  // Check if this user has music access (non-admin unlock)
+  // Check if this user has music access (non-admin unlock, case-insensitive)
   useEffect(() => {
     let active = true;
     async function checkMusic() {
@@ -54,7 +54,7 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
         const { data, error } = await supabase
           .from('music_access')
           .select('email')
-          .eq('email', user.email)
+          .ilike('email', user.email)
           .maybeSingle();
         if (!active) return;
         setHasMusic(!!data && !error);

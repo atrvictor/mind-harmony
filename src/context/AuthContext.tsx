@@ -22,6 +22,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     try {
+      // Handle email magic-link redirect (PKCE code exchange)
+      (async () => {
+        try {
+          const url = new URL(window.location.href);
+          const code = url.searchParams.get('code');
+          if (code) {
+            setLoading(true);
+            await supabase.auth.exchangeCodeForSession({ code });
+            // Clean the URL (remove code & related params)
+            url.searchParams.delete('code');
+            url.searchParams.delete('type');
+            url.searchParams.delete('redirectedFrom');
+            window.history.replaceState({}, document.title, url.pathname + (url.search ? `?${url.searchParams.toString()}` : '') + window.location.hash);
+          }
+        } catch {}
+      })();
+
       // Get initial session
       supabase.auth.getSession().then(({ data: { session } }) => {
         setSession(session);
