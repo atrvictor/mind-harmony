@@ -122,14 +122,14 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
 
       <Footer />
 
-      {/* Floating audio player; shows admin playlist if logged-in admin */}
+      {/* Floating audio player; shows full playlist if admin or hasMusic */}
       <AudioPlayer 
         src={currentTrack.src}
         title={currentTrack.title}
         loop={false}
-        showPrevNext={isAdmin}
-        onPrev={isAdmin ? handlePrev : undefined}
-        onNext={isAdmin ? handleNext : undefined}
+        showPrevNext={isAdmin || hasMusic}
+        onPrev={(isAdmin || hasMusic) ? handlePrev : undefined}
+        onNext={(isAdmin || hasMusic) ? handleNext : undefined}
         userEmail={user?.email ?? undefined}
         userId={user?.id ?? undefined}
       />
