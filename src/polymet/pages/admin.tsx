@@ -30,6 +30,8 @@ export default function AdminPage() {
   // Removed per simplified announce button state
   const [sendingMagicLinks, setSendingMagicLinks] = React.useState(false);
   const [magicLinksResult, setMagicLinksResult] = React.useState<string>("");
+  const [emailClickedMap, setEmailClickedMap] = React.useState<Record<string, boolean>>({});
+  const [emailPlayCountMap, setEmailPlayCountMap] = React.useState<Record<string, number>>({});
 
   // Admin emails
   const adminEmails = ["atrvictor@gmail.com", "mashashen@yahoo.com"];
@@ -338,9 +340,51 @@ export default function AdminPage() {
         } else {
           setEvents(eventsData || []);
           setReservations(reservationsData || []);
-          setCommunity(communityData || []);
+          const communityList = communityData || [];
+          setCommunity(communityList);
           setWaitlist(waitlistData || []);
           setNewsletter(newsletterData || []);
+
+          // Build quick lookup maps for clicks and plays by email (case-insensitive)
+          try {
+            const emails = Array.from(
+              new Set(
+                (communityList || [])
+                  .map((c: any) => (c.email || '').trim().toLowerCase())
+                  .filter((e: string) => !!e)
+              )
+            );
+            if (emails.length > 0) {
+              const { data: clicks } = await supabase
+                .from('link_clicks')
+                .select('email')
+                .in('email', emails);
+              const clickedMap: Record<string, boolean> = {};
+              (clicks || []).forEach((row: any) => {
+                const e = (row.email || '').trim().toLowerCase();
+                if (e) clickedMap[e] = true;
+              });
+              setEmailClickedMap(clickedMap);
+
+              const { data: plays } = await supabase
+                .from('music_plays')
+                .select('email, action')
+                .in('email', emails);
+              const playMap: Record<string, number> = {};
+              (plays || []).forEach((row: any) => {
+                const e = (row.email || '').trim().toLowerCase();
+                if (!e) return;
+                if (row.action === 'play') playMap[e] = (playMap[e] || 0) + 1;
+              });
+              setEmailPlayCountMap(playMap);
+            } else {
+              setEmailClickedMap({});
+              setEmailPlayCountMap({});
+            }
+          } catch (aggErr) {
+            // Non-fatal
+            console.warn('Aggregation fetch error', aggErr);
+          }
         }
       } catch (err: any) {
         setError(err.message || "Unknown error");
@@ -715,6 +759,8 @@ export default function AdminPage() {
                     <th className="px-4 py-2 border-b text-left">Phone</th>
                     <th className="px-4 py-2 border-b text-left">Interest</th>
                     <th className="px-4 py-2 border-b text-left">Signed Up</th>
+                    <th className="px-4 py-2 border-b text-left">Clicked Link</th>
+                    <th className="px-4 py-2 border-b text-left">Plays</th>
                     <th className="px-4 py-2 border-b text-left">Actions</th>
                   </tr>
                 </thead>
@@ -730,6 +776,8 @@ export default function AdminPage() {
                         <td className="px-4 py-2">{c.phone || '—'}</td>
                         <td className="px-4 py-2">{c.interest}</td>
                         <td className="px-4 py-2 text-sm text-gray-500">{c.created_at ? new Date(c.created_at).toLocaleString() : ""}</td>
+                        <td className="px-4 py-2">{emailClickedMap[(c.email || '').trim().toLowerCase()] ? 'Yes' : '—'}</td>
+                        <td className="px-4 py-2">{emailPlayCountMap[(c.email || '').trim().toLowerCase()] ?? 0}</td>
                         <td className="px-4 py-2">
                           <Button
                             onClick={() => deleteCommunityMember(c.email, c.name)}
