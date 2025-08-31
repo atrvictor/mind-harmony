@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   const supa = createClient(url, serviceKey);
   const resend = new Resend(RESEND_API_KEY);
 
-  const { campaign = 'concert_followup', emails } = req.body || {};
+  const { campaign = 'concert_followup', emails, subject, html } = req.body || {};
 
   // Require an authenticated admin caller
   try {
@@ -105,18 +105,25 @@ export default async function handler(req, res) {
 
       const trackUrl = `https://mindharmony.life/api/m?rid=${encodeURIComponent(rid)}`;
 
-      const html = `
-        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
-          <p>Hi,</p>
-          <p>Thank you for joining us yesterday. As a gift, your access to 4 piano meditation tracks is unlocked.</p>
-          <p><a href="${trackUrl}" style="background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a></p>
-          <p>If the button doesn't work, copy and paste this link:<br>${trackUrl}</p>
-          <p>With gratitude,<br/>Vitiá</p>
-        </div>
-      `;
+      // Build per-recipient email using provided subject/html or fallback
+      const finalSubject = subject && typeof subject === 'string' && subject.trim().length > 0
+        ? subject
+        : 'Your Mind Harmony access';
+      const baseHtml = html && typeof html === 'string' && html.trim().length > 0
+        ? html
+        : `
+          <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
+            <p>Hi,</p>
+            <p>Thank you for joining us yesterday. As a gift, your access to 4 piano meditation tracks is unlocked.</p>
+            <p><a href="{{link}}" style="background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a></p>
+            <p>If the button doesn't work, copy and paste this link:<br>{{link}}</p>
+            <p>With gratitude,<br/>Vitiá</p>
+          </div>
+        `;
+      const finalHtml = baseHtml.replace(/\{\{\s*link\s*\}\}/g, trackUrl);
 
       try {
-        const resp = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: 'Your Mind Harmony access', html });
+        const resp = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: finalSubject, html: finalHtml });
         results.push({ email, id: resp?.data?.id || null, error: null });
       } catch (e) {
         results.push({ email, id: null, error: e?.message || 'send-error' });

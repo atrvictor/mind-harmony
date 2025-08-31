@@ -43,32 +43,7 @@ export default function AdminPage() {
     return d.toLocaleString();
   }
 
-  async function handleSendMagicLinks() {
-    if (!isAdmin) return;
-    if (!confirm('Send magic sign-in links? OK = to selected recipients (if any), or to all community if none selected.')) return;
-    setSendingMagicLinks(true);
-    setMagicLinksResult("");
-    try {
-      const token = (await supabase.auth.getSession()).data.session?.access_token;
-      const resp = await fetch('/api/sendMagicLinksToCommunity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ 
-          campaign: 'concert_followup',
-          emails: Array.from(selectedEmails)
-        })
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data?.error || 'Failed');
-      setMagicLinksResult(`Sent: ${data.sent} emails`);
-      alert(`Magic links sent successfully to ${data.sent} recipient(s).`);
-    } catch (e: any) {
-      setMagicLinksResult(`Error: ${e?.message || e}`);
-      alert(`Failed to send magic links: ${e?.message || e}`);
-    } finally {
-      setSendingMagicLinks(false);
-    }
-  }
+  // (Deprecated) handleSendMagicLinks replaced by handlePreviewMagicLinkToMe and handleSendMagicLinksFromCompose
 
   // Bulk email selection + compose state
   const [selectedEmails, setSelectedEmails] = React.useState<Set<string>>(new Set());
@@ -147,7 +122,7 @@ export default function AdminPage() {
     setSelectedEmails(new Set());
   }
 
-  function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity" | "details") {
+  function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity" | "details" | "magiclinks") {
     if (preset === "announcement") {
       setComposeSubject("Early Bird ends tomorrow — Sunset piano at Kate Sessions, Fri 6:30");
       setComposeBody(
@@ -187,9 +162,97 @@ export default function AdminPage() {
         "5115 Soledad Road\n" +
         "San Diego, CA 92109"
       );
+    } else if (preset === "magiclinks") {
+      setComposeSubject("Your Mind Harmony access");
+      setComposeBody(
+        "Hi,\n\n" +
+        "Thank you for joining us! As a gift, your access to 4 piano tracks is unlocked.\n\n" +
+        "Sign in here: {{link}}\n\n" +
+        "With gratitude,\nVitiá"
+      );
     } else {
       setComposeSubject("Thank you from Mind Harmony");
       setComposeBody("Thank you for being part of Mind Harmony. Your presence and support mean the world. Hope to see you again soon!\n\nWith gratitude,\nVitiá");
+    }
+  }
+
+  function buildMagicHtmlFromCompose(): { subject: string; html: string } | null {
+    const subject = (composeSubject || "Your Mind Harmony access").trim();
+    let body = (composeBody || "").trim();
+    if (!body) {
+      alert("Please write a message (it can include {{link}} where the sign-in link should go).");
+      return null;
+    }
+    // Ensure {{link}} placeholder exists; if not, append a CTA
+    if (!/{{\s*link\s*}}/i.test(body)) {
+      body += "\n\nSign in: {{link}}";
+    }
+    const html = composeIsHtml
+      ? body
+      : `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;white-space:pre-wrap">${body.replace(/</g, "&lt;")}</div>`;
+    return { subject, html };
+  }
+
+  async function handlePreviewMagicLinkToMe() {
+    if (!isAdmin) return;
+    if (!user?.email) { alert("You're not logged in."); return; }
+    const payload = buildMagicHtmlFromCompose();
+    if (!payload) return;
+    setSendingMagicLinks(true);
+    setMagicLinksResult("");
+    try {
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const resp = await fetch('/api/sendMagicLinksToCommunity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          campaign: 'magiclinks_preview',
+          emails: [user.email],
+          subject: payload.subject,
+          html: payload.html
+        })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error || 'Failed');
+      setMagicLinksResult(`Preview sent to ${user.email}`);
+      alert(`Preview sent to ${user.email}`);
+    } catch (e: any) {
+      setMagicLinksResult(`Error: ${e?.message || e}`);
+      alert(`Failed to send preview: ${e?.message || e}`);
+    } finally {
+      setSendingMagicLinks(false);
+    }
+  }
+
+  async function handleSendMagicLinksFromCompose() {
+    if (!isAdmin) return;
+    const to = Array.from(selectedEmails);
+    if (to.length === 0 && !confirm('No recipients selected. Send to ALL community?')) return;
+    const payload = buildMagicHtmlFromCompose();
+    if (!payload) return;
+    setSendingMagicLinks(true);
+    setMagicLinksResult("");
+    try {
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const resp = await fetch('/api/sendMagicLinksToCommunity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({
+          campaign: 'concert_followup',
+          emails: to.length > 0 ? to : undefined,
+          subject: payload.subject,
+          html: payload.html
+        })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error || 'Failed');
+      setMagicLinksResult(`Sent: ${data.sent} emails`);
+      alert(`Magic links sent to ${data.sent} recipient(s).`);
+    } catch (e: any) {
+      setMagicLinksResult(`Error: ${e?.message || e}`);
+      alert(`Failed to send magic links: ${e?.message || e}`);
+    } finally {
+      setSendingMagicLinks(false);
     }
   }
 
@@ -586,6 +649,7 @@ export default function AdminPage() {
                   <Button variant="outline" size="sm" onClick={() => applyPreset('thankyou')}>Thank You</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('ftcommunity')}>FT Community</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('details')}>Details</Button>
+                  <Button variant="outline" size="sm" onClick={() => applyPreset('magiclinks')}>Magic Links</Button>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <span>Selected: {Array.from(selectedEmails).length}</span>
@@ -604,8 +668,11 @@ export default function AdminPage() {
                 <Button onClick={handleSendCustom} disabled={sendingCustom}>
                   {sendingCustom ? 'Sending...' : 'Send to Selected'}
                 </Button>
-                <Button variant="secondary" onClick={handleSendMagicLinks} disabled={sendingMagicLinks}>
-                  {sendingMagicLinks ? 'Sending Magic Links...' : 'Send Magic Links to Community'}
+                <Button variant="secondary" onClick={handlePreviewMagicLinkToMe} disabled={sendingMagicLinks}>
+                  {sendingMagicLinks ? 'Previewing…' : 'Preview Magic Link (to me)'}
+                </Button>
+                <Button variant="secondary" onClick={handleSendMagicLinksFromCompose} disabled={sendingMagicLinks}>
+                  {sendingMagicLinks ? 'Sending…' : 'Send Magic Links (using this message)'}
                 </Button>
                 {magicLinksResult && (
                   <span className="text-sm text-gray-600">{magicLinksResult}</span>
