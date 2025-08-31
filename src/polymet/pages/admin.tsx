@@ -50,7 +50,7 @@ export default function AdminPage() {
   const [composeSubject, setComposeSubject] = React.useState("");
   const [composeBody, setComposeBody] = React.useState("");
   const [sendingCustom, setSendingCustom] = React.useState(false);
-  const [composeIsHtml] = React.useState(false);
+  const [composeIsHtml, setComposeIsHtml] = React.useState(false);
   const [deletingCommunity, setDeletingCommunity] = React.useState<Set<string>>(new Set());
 
   function normalizeEmail(e?: string | null) {
@@ -187,10 +187,29 @@ export default function AdminPage() {
     if (!/{{\s*link\s*}}/i.test(body)) {
       body += "\n\nSign in: {{link}}";
     }
-    const html = composeIsHtml
-      ? body
-      : `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;white-space:pre-wrap">${body.replace(/</g, "&lt;")}</div>`;
+    let html: string;
+    if (composeIsHtml) {
+      html = body;
+    } else {
+      const escaped = body.replace(/</g, "&lt;");
+      html = `
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;white-space:pre-wrap">${escaped}</div>
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;margin-top:12px">
+          <a href="{{link}}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a>
+          <div style="font-size:12px;color:#666;margin-top:8px">If the button doesn't work, copy and paste this link: <span style="word-break:break-all">{{link}}</span></div>
+        </div>
+      `;
+    }
     return { subject, html };
+  }
+
+  function insertMagicLinkButton() {
+    setComposeIsHtml(true);
+    setComposeBody((prev) => {
+      const base = (prev || '').trim();
+      const snippet = `\n\n<a href="{{link}}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a>\n<div style="font-size:12px;color:#666;margin-top:8px">If the button doesn't work, copy and paste this link: <span style="word-break:break-all">{{link}}</span></div>`;
+      return base ? base + snippet : `Hi,\n\nThank you for joining us!\n\n${snippet}\n\nWith gratitude,\nVitiá`;
+    });
   }
 
   async function handlePreviewMagicLinkToMe() {
@@ -655,6 +674,13 @@ export default function AdminPage() {
                   <span>Selected: {Array.from(selectedEmails).length}</span>
                   <Button variant="outline" size="sm" onClick={clearSelected}>Clear</Button>
                 </div>
+              </div>
+              <div className="mt-2 flex items-center gap-2 text-sm">
+                <label className="inline-flex items-center gap-2">
+                  <input type="checkbox" checked={composeIsHtml} onChange={(e) => setComposeIsHtml(e.target.checked)} />
+                  <span>Send as HTML (supports links/buttons)</span>
+                </label>
+                <Button variant="outline" size="sm" onClick={insertMagicLinkButton}>Insert Magic Link Button</Button>
               </div>
               <div className="mt-3">
                 <Textarea
