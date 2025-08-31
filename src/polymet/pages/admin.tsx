@@ -695,7 +695,35 @@ export default function AdminPage() {
 
           {/* Existing dashboard sections */}
           <section className="mb-12">
-            <h2 className="text-xl font-semibold mb-4">Community Signups</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Community Signups</h2>
+              <Button variant="outline" size="sm" onClick={() => {
+                // Re-run initial fetch
+                (async () => {
+                  setLoading(true);
+                  setError("");
+                  try {
+                    const { data: communityData } = await supabase
+                      .from("community")
+                      .select("name, email, phone, interest, created_at")
+                      .order("created_at", { ascending: false });
+                    const communityList = communityData || [];
+                    setCommunity(communityList);
+                    const emails = Array.from(new Set((communityList || []).map((c: any) => (c.email || '').trim().toLowerCase()).filter(Boolean)));
+                    if (emails.length) {
+                      const { data: clicks } = await supabase.from('link_clicks').select('email').in('email', emails);
+                      const clickedMap: Record<string, boolean> = {}; (clicks || []).forEach((r: any) => { const e=(r.email||'').trim().toLowerCase(); if (e) clickedMap[e]=true; });
+                      setEmailClickedMap(clickedMap);
+                      const { data: plays } = await supabase.from('music_plays').select('email, action').in('email', emails);
+                      const playMap: Record<string, number> = {}; (plays || []).forEach((r:any)=>{ const e=(r.email||'').trim().toLowerCase(); if(!e) return; if(r.action==='play') playMap[e]=(playMap[e]||0)+1; });
+                      setEmailPlayCountMap(playMap);
+                    } else {
+                      setEmailClickedMap({}); setEmailPlayCountMap({});
+                    }
+                  } finally { setLoading(false); }
+                })();
+              }}>Refresh</Button>
+            </div>
             {/* Bulk email compose */}
             <div className="mb-4 p-4 border rounded-lg bg-gray-50">
               <div className="mb-2">
