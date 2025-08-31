@@ -121,16 +121,14 @@ export default async function handler(req, res) {
           </div>
         `;
       let finalHtml = baseHtml.replace(/\{\{\s*link\s*\}\}/g, trackUrl);
-      // Safety: if the provided HTML didn't include {{link}}, append a default button + fallback
-      if (!finalHtml.includes(trackUrl)) {
-        const fallbackBlock = `
-          <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;margin-top:12px">
-            <a href="${trackUrl}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a>
-            <div style="font-size:12px;color:#666;margin-top:8px">If the button doesn't work, copy and paste this link: <span style="word-break:break-all">${trackUrl}</span></div>
-          </div>
-        `;
-        finalHtml = `${finalHtml}${fallbackBlock}`;
-      }
+      // Always append a clickable button + plain-link fallback so every message has a tappable link
+      const fallbackBlock = `
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;margin-top:12px">
+          <a href="${trackUrl}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a>
+          <div style="font-size:12px;color:#666;margin-top:8px">If the button doesn't work, copy and paste this link: <span style="word-break:break-all">${trackUrl}</span></div>
+        </div>
+      `;
+      finalHtml = `${finalHtml}${fallbackBlock}`;
 
       try {
         const resp = await resend.emails.send({ from: EMAIL_FROM, to: email, subject: finalSubject, html: finalHtml });
