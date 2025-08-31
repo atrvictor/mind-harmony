@@ -124,6 +124,38 @@ export default function AdminPage() {
     setSelectedEmails(new Set());
   }
 
+  // Helper: load click/play stats via secure API (service role)
+  async function loadStatsForCommunity(communityList: any[]) {
+    try {
+      const emails = Array.from(
+        new Set(
+          (communityList || [])
+            .map((c: any) => (c.email || '').trim().toLowerCase())
+            .filter((e: string) => !!e)
+        )
+      );
+      if (emails.length === 0) {
+        setEmailClickedMap({});
+        setEmailPlayCountMap({});
+        return;
+      }
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const resp = await fetch('/api/statsCommunity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ emails })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error || 'Failed to load stats');
+      setEmailClickedMap(data.clickedMap || {});
+      setEmailPlayCountMap(data.playCountMap || {});
+    } catch (aggErr) {
+      console.warn('Aggregation fetch error', aggErr);
+      setEmailClickedMap({});
+      setEmailPlayCountMap({});
+    }
+  }
+
   function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity" | "details" | "magiclinks") {
     if (preset === "announcement") {
       setComposeSubject("Early Bird ends tomorrow — Sunset piano at Kate Sessions, Fri 6:30");
@@ -344,47 +376,7 @@ export default function AdminPage() {
           setCommunity(communityList);
           setWaitlist(waitlistData || []);
           setNewsletter(newsletterData || []);
-
-          // Build quick lookup maps for clicks and plays by email (case-insensitive)
-          try {
-            const emails = Array.from(
-              new Set(
-                (communityList || [])
-                  .map((c: any) => (c.email || '').trim().toLowerCase())
-                  .filter((e: string) => !!e)
-              )
-            );
-            if (emails.length > 0) {
-              const { data: clicks } = await supabase
-                .from('link_clicks')
-                .select('email')
-                .in('email', emails);
-              const clickedMap: Record<string, boolean> = {};
-              (clicks || []).forEach((row: any) => {
-                const e = (row.email || '').trim().toLowerCase();
-                if (e) clickedMap[e] = true;
-              });
-              setEmailClickedMap(clickedMap);
-
-              const { data: plays } = await supabase
-                .from('music_plays')
-                .select('email, action')
-                .in('email', emails);
-              const playMap: Record<string, number> = {};
-              (plays || []).forEach((row: any) => {
-                const e = (row.email || '').trim().toLowerCase();
-                if (!e) return;
-                if (row.action === 'play') playMap[e] = (playMap[e] || 0) + 1;
-              });
-              setEmailPlayCountMap(playMap);
-            } else {
-              setEmailClickedMap({});
-              setEmailPlayCountMap({});
-            }
-          } catch (aggErr) {
-            // Non-fatal
-            console.warn('Aggregation fetch error', aggErr);
-          }
+          await loadStatsForCommunity(communityList);
         }
       } catch (err: any) {
         setError(err.message || "Unknown error");
@@ -709,17 +701,7 @@ export default function AdminPage() {
                       .order("created_at", { ascending: false });
                     const communityList = communityData || [];
                     setCommunity(communityList);
-                    const emails = Array.from(new Set((communityList || []).map((c: any) => (c.email || '').trim().toLowerCase()).filter(Boolean)));
-                    if (emails.length) {
-                      const { data: clicks } = await supabase.from('link_clicks').select('email').in('email', emails);
-                      const clickedMap: Record<string, boolean> = {}; (clicks || []).forEach((r: any) => { const e=(r.email||'').trim().toLowerCase(); if (e) clickedMap[e]=true; });
-                      setEmailClickedMap(clickedMap);
-                      const { data: plays } = await supabase.from('music_plays').select('email, action').in('email', emails);
-                      const playMap: Record<string, number> = {}; (plays || []).forEach((r:any)=>{ const e=(r.email||'').trim().toLowerCase(); if(!e) return; if(r.action==='play') playMap[e]=(playMap[e]||0)+1; });
-                      setEmailPlayCountMap(playMap);
-                    } else {
-                      setEmailClickedMap({}); setEmailPlayCountMap({});
-                    }
+                    await loadStatsForCommunity(communityList);
                   } finally { setLoading(false); }
                 })();
               }}>Refresh</Button>
