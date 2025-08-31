@@ -99,7 +99,30 @@ export default function AudioPlayer({
     const autoPlay = isPlaying;
     const onCanPlay = () => {
       if (autoPlay) {
-        audio.play().catch(() => {});
+        audio
+          .play()
+          .then(async () => {
+            try {
+              const rid = localStorage.getItem('mh_rid') || undefined;
+              const campaign = localStorage.getItem('mh_campaign') || undefined;
+              await fetch('/api/trackAudio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  userEmail,
+                  userId,
+                  trackSrc: src,
+                  trackTitle: title,
+                  action: 'play',
+                  position: audio.currentTime,
+                  duration: isFinite(audio.duration) ? audio.duration : undefined,
+                  rid,
+                  campaign
+                })
+              });
+            } catch {}
+          })
+          .catch(() => {});
       }
       audio.removeEventListener('canplay', onCanPlay);
     };

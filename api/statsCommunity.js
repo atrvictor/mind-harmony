@@ -45,7 +45,8 @@ export default async function handler(req, res) {
 
       const { data: plays } = await supa
         .from('music_plays')
-        .select('email, action');
+        .select('email, action, created_at')
+        .gte('created_at', new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString()); // last 30 days
       (plays || []).forEach((row) => {
         const e = norm(row.email);
         if (!lowerList.includes(e)) return;
