@@ -139,6 +139,7 @@ export default function AudioPlayer({
           })
         });
       } catch {}
+      try { window.dispatchEvent(new Event('mh:player-user-interact')); } catch {}
       return;
     }
     try {
@@ -165,6 +166,7 @@ export default function AudioPlayer({
           })
         });
       } catch {}
+      try { window.dispatchEvent(new Event('mh:player-user-interact')); } catch {}
     } catch (err) {
       // Autoplay restrictions or missing file
       setIsPlaying(false);

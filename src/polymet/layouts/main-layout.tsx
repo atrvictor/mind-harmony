@@ -33,6 +33,7 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
   };
   // Add a state to track scroll position 
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [showMultiTrackHint, setShowMultiTrackHint] = useState(false);
   
   // Persist rid/campaign if present on landing
   useEffect(() => {
@@ -66,6 +67,24 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
     checkMusic();
     return () => { active = false; };
   }, [user?.email]);
+
+  // Decide whether to show the one-time multi-track hint
+  useEffect(() => {
+    const canShow = (isAdmin || hasMusic) && adminTracks.length > 1;
+    if (!canShow) { setShowMultiTrackHint(false); return; }
+    const seen = localStorage.getItem('mh_multitrack_hint_seen') === '1';
+    setShowMultiTrackHint(!seen);
+  }, [isAdmin, hasMusic]);
+
+  // Hide hint on explicit interaction via custom event fired by the player
+  useEffect(() => {
+    const onInteract = () => {
+      setShowMultiTrackHint(false);
+      localStorage.setItem('mh_multitrack_hint_seen', '1');
+    };
+    window.addEventListener('mh:player-user-interact', onInteract);
+    return () => window.removeEventListener('mh:player-user-interact', onInteract);
+  }, []);
   
   useEffect(() => {
     // Function to update scroll position
@@ -122,23 +141,33 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
 
       <Footer />
 
-      {/* Floating audio player; shows full playlist if admin or hasMusic */}
-      <AudioPlayer 
-        src={currentTrack.src}
-        title={currentTrack.title}
-        loop={false}
-        showPrevNext={isAdmin || hasMusic}
-        onPrev={(isAdmin || hasMusic) ? handlePrev : undefined}
-        onNext={(isAdmin || hasMusic) ? handleNext : undefined}
-        userEmail={user?.email ?? undefined}
-        userId={user?.id ?? undefined}
-      />
+      {/* Wrapper to detect hover and dismiss the hint */}
+      <div
+        onMouseEnter={() => {
+          if (showMultiTrackHint) {
+            setShowMultiTrackHint(false);
+            localStorage.setItem('mh_multitrack_hint_seen', '1');
+          }
+        }}
+      >
+        {/* Floating audio player; shows full playlist if admin or hasMusic */}
+        <AudioPlayer 
+          src={currentTrack.src}
+          title={currentTrack.title}
+          loop={false}
+          showPrevNext={isAdmin || hasMusic}
+          onPrev={(isAdmin || hasMusic) ? handlePrev : undefined}
+          onNext={(isAdmin || hasMusic) ? handleNext : undefined}
+          userEmail={user?.email ?? undefined}
+          userId={user?.id ?? undefined}
+        />
+      </div>
 
-      {(isAdmin || hasMusic) && adminTracks.length > 1 && (
-        <div className="fixed top-[6.5rem] right-4 z-[9998]">
-          <div className="inline-flex items-center gap-2 rounded-full bg-[#1E3A5F] text-white px-3 py-1 shadow-lg">
+      {showMultiTrackHint && (
+        <div className="fixed right-4 z-[9997]" style={{ top: '9rem' }}>
+          <div className="pointer-events-none inline-flex items-center gap-2 rounded-md bg-black/70 text-white px-3 py-1 shadow-lg">
             <span className="text-xs font-semibold tracking-wide">{adminTracks.length} tracks available</span>
-            <span className="text-xs opacity-90">Tap ▶ then ▶ to skip</span>
+            <span className="text-xs opacity-90">Click ▶ then ▶ to skip</span>
           </div>
         </div>
       )}
