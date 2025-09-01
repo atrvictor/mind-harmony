@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { PlayIcon, PauseIcon, Volume2Icon, VolumeXIcon, MusicIcon } from "lucide-react";
+import AudioManager from "@/lib/audioManager";
 
 interface AudioPlayerProps {
   /** Absolute path under public/. Example: "/audio/your-song.mp3" */
@@ -34,6 +35,7 @@ export default function AudioPlayer({
   userId,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioManager = AudioManager.getInstance();
   const [isPlaying, setIsPlaying] = useState<boolean>(() => {
     // Restore playing state from localStorage
     return localStorage.getItem('mh_audio_playing') === 'true';
@@ -81,30 +83,22 @@ export default function AudioPlayer({
     return () => clearInterval(interval);
   }, [isPlaying]);
 
-  // Initialize audio element properties when mounted or when loop changes
+  // Initialize audio element using global manager
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    if (!src) return;
+    
+    // Get or create audio element from global manager
+    const audio = audioManager.initialize(src);
+    audioRef.current = audio;
+    
+    // Apply current settings
     audio.loop = loop;
     audio.volume = volume;
-    audio.preload = "metadata";
     
-    // Restore current time if was playing
-    const savedTime = localStorage.getItem('mh_audio_time');
-    const wasPlaying = localStorage.getItem('mh_audio_playing') === 'true';
+    // Sync playing state with actual audio state
+    setPlayingState(!audio.paused);
     
-    if (savedTime) {
-      audio.currentTime = parseFloat(savedTime);
-    }
-    
-    // Auto-resume if was playing before navigation
-    if (wasPlaying && src) {
-      audio.play().catch(() => {
-        // Auto-play might be blocked, that's okay
-        setPlayingState(false);
-      });
-    }
-  }, [loop, src]);
+  }, [src, loop, audioManager]);
 
   // Reflect volume/mute changes on the element
   useEffect(() => {
