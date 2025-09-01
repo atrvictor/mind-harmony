@@ -176,7 +176,9 @@ export default function MindHarmonyPrototype() {
           {/* Protected routes */}
           <Route path="/meditation" element={
             <ProtectedRoute>
-              <MeditationDashboard />
+              <AuthenticatedLayout>
+                <MeditationDashboard />
+              </AuthenticatedLayout>
             </ProtectedRoute>
           } />
           

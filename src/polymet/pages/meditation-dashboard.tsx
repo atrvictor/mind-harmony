@@ -26,7 +26,7 @@ export default function MeditationDashboard() {
   const displayName = firstName || user?.email?.split('@')[0] || "friend";
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative">
       {/* Full-page background video */}
       <video
         autoPlay
@@ -38,12 +38,13 @@ export default function MeditationDashboard() {
         <source src="/drone for site.mp4" type="video/mp4" />
       </video>
       
-      {/* Content overlay */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
-        <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center text-white drop-shadow-lg">
-          Welcome, {displayName}
-        </h1>
-        <div className="max-w-2xl text-center">
+      {/* Content positioned at top */}
+      <div className="relative z-10 pt-8 pb-16 px-4">
+        <div className="max-w-2xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-8 text-white drop-shadow-lg">
+            Welcome, {displayName}
+          </h1>
+          
           <h2 className="text-2xl font-semibold mb-6 text-white drop-shadow-lg">Grounding Breath Meditation</h2>
           <p className="text-lg text-white/90 drop-shadow mb-6 leading-relaxed">
             Find a comfortable seated position. Close your eyes and take a deep
@@ -60,6 +61,9 @@ export default function MeditationDashboard() {
             player will follow you on all pages.
           </p>
         </div>
+        
+        {/* Spacer to allow video to be main focus */}
+        <div className="h-96"></div>
       </div>
     </div>
   );
