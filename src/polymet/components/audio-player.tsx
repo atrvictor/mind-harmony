@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { PlayIcon, PauseIcon, Volume2Icon, VolumeXIcon, MusicIcon } from "lucide-react";
-import AudioManager from "@/lib/audioManager";
+import { getGlobalAudio, setGlobalAudio } from "@/lib/globalAudio";
 
 interface AudioPlayerProps {
   /** Absolute path under public/. Example: "/audio/your-song.mp3" */
@@ -35,7 +35,6 @@ export default function AudioPlayer({
   userId,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioManager = AudioManager.getInstance();
   const [isPlaying, setIsPlaying] = useState<boolean>(() => {
     // Restore playing state from localStorage
     return localStorage.getItem('mh_audio_playing') === 'true';
@@ -83,12 +82,12 @@ export default function AudioPlayer({
     return () => clearInterval(interval);
   }, [isPlaying]);
 
-  // Initialize audio element using global manager
+  // Initialize audio element using truly global audio
   useEffect(() => {
     if (!src) return;
     
-    // Get or create audio element (reuses existing if same source)
-    const audio = audioManager.getOrCreateAudio(src);
+    // Get or create the global audio element
+    const audio = setGlobalAudio(src, title || '');
     audioRef.current = audio;
     
     // Apply current settings
@@ -98,10 +97,7 @@ export default function AudioPlayer({
     // Sync playing state with actual audio state
     setPlayingState(!audio.paused);
     
-    // Try to restore if needed
-    audioManager.restoreIfNeeded();
-    
-  }, [src, loop, audioManager]);
+  }, [src, title, loop]);
 
   // Reflect volume/mute changes on the element
   useEffect(() => {
