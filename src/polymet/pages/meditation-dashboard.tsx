@@ -48,18 +48,31 @@ export default function MeditationDashboard() {
         </p>
       </article>
 
-      {/* Future background video placeholder */}
-      <div className="relative w-full h-96 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg overflow-hidden">
-        {/* TODO: Add subtle background video here */}
-        {/* Saved YouTube link for future reference: https://www.youtube.com/embed/2OEL4P1Rz04 */}
+      {/* Subtle background video */}
+      <div className="relative w-full h-96 rounded-lg overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/drone for site.mp4" type="video/mp4" />
+          {/* Fallback gradient if video fails to load */}
+        </video>
+        
+        {/* Subtle overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/20" />
+        
+        {/* Content overlay */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-gray-600">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/50 flex items-center justify-center">
+          <div className="text-center text-white drop-shadow-lg">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
               </svg>
             </div>
-            <p className="text-sm">
+            <p className="text-sm font-medium">
               Let the music guide your meditation journey
             </p>
           </div>
