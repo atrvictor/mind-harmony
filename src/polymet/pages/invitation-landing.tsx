@@ -368,29 +368,21 @@ export default function InvitationLandingPage() {
                 </div>
               </div>
 
-              {/* Consents */}
+              {/* Combined Consent */}
               <div className="space-y-4 pt-4 border-t">
                 <div className="flex items-start space-x-2">
                   <Checkbox
-                    id="smsConsent"
-                    checked={formData.smsConsent}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, smsConsent: !!checked }))}
+                    id="combinedConsent"
+                    checked={formData.smsConsent && formData.termsAccepted && formData.emailUpdates}
+                    onCheckedChange={(checked) => setFormData(prev => ({ 
+                      ...prev, 
+                      smsConsent: !!checked,
+                      termsAccepted: !!checked,
+                      emailUpdates: !!checked
+                    }))}
                     required
                   />
-                  <Label htmlFor="smsConsent" className="font-normal text-sm leading-relaxed">
-                    I agree to receive SMS updates from Mind Harmony including event reminders and special offers. 
-                    Message frequency: max 4/month. Reply STOP to opt out. Standard rates apply. *
-                  </Label>
-                </div>
-
-                <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="termsAccepted"
-                    checked={formData.termsAccepted}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, termsAccepted: !!checked }))}
-                    required
-                  />
-                  <Label htmlFor="termsAccepted" className="font-normal text-sm">
+                  <Label htmlFor="combinedConsent" className="font-normal text-sm leading-relaxed">
                     I accept the{" "}
                     <a href="/terms" target="_blank" className="text-blue-600 hover:underline">
                       Terms of Service
@@ -398,19 +390,9 @@ export default function InvitationLandingPage() {
                     and{" "}
                     <a href="/privacy" target="_blank" className="text-blue-600 hover:underline">
                       Privacy Policy
-                    </a>{" "}
-                    *
-                  </Label>
-                </div>
-
-                <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="emailUpdates"
-                    checked={formData.emailUpdates}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, emailUpdates: !!checked }))}
-                  />
-                  <Label htmlFor="emailUpdates" className="font-normal text-sm">
-                    I'd like to receive email updates about Mind Harmony events and news
+                    </a>. 
+                    I agree to receive email updates about Mind Harmony events and news. 
+                    I agree to receive SMS updates from Mind Harmony. Reply STOP to opt out. *
                   </Label>
                 </div>
               </div>
@@ -424,7 +406,7 @@ export default function InvitationLandingPage() {
               <Button 
                 type="submit" 
                 className="w-full h-12 text-lg"
-                disabled={loading || !formData.smsConsent || !formData.termsAccepted}
+                disabled={loading || !formData.smsConsent || !formData.termsAccepted || !formData.emailUpdates}
               >
                 {loading ? "Creating Your Membership..." : "Accept Gift & Become a Member"}
               </Button>
