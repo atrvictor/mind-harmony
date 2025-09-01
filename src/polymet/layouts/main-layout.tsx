@@ -26,7 +26,7 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
   const [trackIndex, setTrackIndex] = useState(() => {
     // Persist track index in localStorage
     const saved = localStorage.getItem('mh_track_index');
-    return saved ? parseInt(saved, 10) : 0;
+    return saved ? Math.max(0, parseInt(saved, 10)) : 0;
   });
   
   const currentTrack = (isAdmin || hasMusic) ? adminTracks[trackIndex] : { src: "/audio/Kindred%20Spirit%20Felt.mp3", title: "Kindred Spirit Vitiá Kulish" };
@@ -168,6 +168,7 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
       >
         {/* Floating audio player; shows full playlist if admin or hasMusic */}
         <AudioPlayer 
+          key="global-audio-player"
           src={currentTrack.src}
           title={currentTrack.title}
           loop={false}

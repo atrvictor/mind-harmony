@@ -23,34 +23,7 @@ export default function MeditationDashboard() {
     fetchUserProfile();
   }, [user?.email]);
 
-  // Preserve audio state when this page mounts/unmounts
-  useEffect(() => {
-    // When page loads, try to restore audio if it was playing
-    const wasPlaying = localStorage.getItem('mh_audio_playing') === 'true';
-    if (wasPlaying) {
-      setTimeout(() => {
-        const audio = document.querySelector('audio');
-        if (audio && audio.paused) {
-          const savedTime = localStorage.getItem('mh_audio_time');
-          if (savedTime) {
-            audio.currentTime = parseFloat(savedTime);
-          }
-          audio.play().catch(() => {
-            // Autoplay might be blocked
-          });
-        }
-      }, 200);
-    }
 
-    // Cleanup function to save state when leaving this page
-    return () => {
-      const audio = document.querySelector('audio');
-      if (audio && !audio.paused) {
-        localStorage.setItem('mh_audio_time', audio.currentTime.toString());
-        localStorage.setItem('mh_audio_playing', 'true');
-      }
-    };
-  }, []);
 
   const displayName = firstName || user?.email?.split('@')[0] || "friend";
 
