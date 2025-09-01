@@ -87,7 +87,16 @@ export default function AudioPlayer({
   useEffect(() => {
     if (!src) return;
     
-    // Get or create audio element from global manager
+    // Check if this is the same source that's already playing
+    const currentAudio = audioManager.getAudio();
+    if (currentAudio && currentAudio.src.includes(src.split('/').pop() || '')) {
+      // Same track is already loaded, just sync the ref and state
+      audioRef.current = currentAudio;
+      setPlayingState(!currentAudio.paused);
+      return;
+    }
+    
+    // Different track, initialize new one
     const audio = audioManager.initialize(src);
     audioRef.current = audio;
     
