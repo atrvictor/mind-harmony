@@ -64,13 +64,30 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, sent: 0, results: [] });
     }
 
-    // 2) Grant music access up-front
+    // 2) Build a map of first names from the community table (case-insensitive)
+    const emailLowerSet = new Set(emailsList.map((e) => String(e).toLowerCase()));
+    const firstNameMap = {};
+    try {
+      const { data: nameRows } = await supa
+        .from('community')
+        .select('email, name');
+      (nameRows || []).forEach((row) => {
+        const key = String(row.email || '').toLowerCase();
+        if (!emailLowerSet.has(key)) return;
+        const full = String(row.name || '').trim();
+        if (!full) return;
+        const first = full.split(/\s+/)[0];
+        if (first) firstNameMap[key] = first;
+      });
+    } catch {}
+
+    // 3) Grant music access up-front
     const accessRows = emailsList.map(email => ({ email, granted_by: 'system:' + campaign }));
     await supa
       .from('music_access')
       .upsert(accessRows, { onConflict: 'email', ignoreDuplicates: false });
 
-    // 3) Send individualized magic links through short redirect for tracking
+    // 4) Send individualized magic links through short redirect for tracking
     const results = [];
     for (const email of emailsList) {
       // generate redirect id and set redirect target where magic link will send the user after auth
@@ -121,7 +138,9 @@ export default async function handler(req, res) {
             <p>With gratitude,<br/>Vitiá</p>
           </div>
         `;
-      const firstNameGuess = String(email).split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      const emailLower = String(email).toLowerCase();
+      const firstNameGuess = firstNameMap[emailLower]
+        || String(email).split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
       let finalHtml = baseHtml
         .replace(/\[\s*first\s*name\s*\]/ig, firstNameGuess || 'Friend')
         .replace(/\{\{\s*link\s*\}\}/g, trackUrl);
