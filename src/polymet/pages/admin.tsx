@@ -156,7 +156,7 @@ export default function AdminPage() {
     }
   }
 
-  function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity" | "details" | "magiclinks" | "ml1") {
+  function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity" | "details" | "magiclinks" | "ml1" | "ml2") {
     if (preset === "announcement") {
       setComposeSubject("Early Bird ends tomorrow — Sunset piano at Kate Sessions, Fri 6:30");
       setComposeBody(
@@ -217,6 +217,19 @@ export default function AdminPage() {
         + `<p><strong>P.S.</strong> As a special thank‑you, I’ve included a gift for you: access to 4 unreleased songs from my upcoming album. Enjoy them:</p>`
         + `<p style="margin:16px 0"><a href="{{link}}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a></p>`
         + `<p style="font-size:12px;color:#555">or copy and paste into browser:<br/>{{link}}</p>`
+        + `</div>`
+      );
+    } else if (preset === "ml2") {
+      setComposeIsHtml(true);
+      setComposeSubject("Your Mind Harmony gift — access inside");
+      setComposeBody(
+        `<div style="font-family:Arial,sans-serif;line-height:1.7;color:#111">`
+        + `<p>Dear [First Name],</p>`
+        + `<p>Thank you for being part of the Mind Harmony community and for sharing in our recent concert. Your presence helps turn music into a true experience of peace, reflection, and connection.</p>`
+        + `<p>As a special thank‑you, here is a gift for you — access to 4 unreleased songs from my upcoming album. I hope they bring you calm and joy.</p>`
+        + `<p style="margin:16px 0"><a href="{{link}}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a></p>`
+        + `<p style="font-size:12px;color:#555">or copy and paste into browser:<br/>{{link}}</p>`
+        + `<p>With gratitude,<br/>Vitià Kulish<br/>Mind Harmony</p>`
         + `</div>`
       );
     } else {
@@ -736,6 +749,7 @@ export default function AdminPage() {
                   <Button variant="outline" size="sm" onClick={() => applyPreset('details')}>Details</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('magiclinks')}>Magic Links</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('ml1')}>Magic Links: ML1</Button>
+                  <Button variant="outline" size="sm" onClick={() => applyPreset('ml2')}>Magic Links: ML2</Button>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <span>Selected: {Array.from(selectedEmails).length}</span>
