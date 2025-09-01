@@ -524,6 +524,51 @@ export default function AdminPage() {
     }
   };
 
+  // Send magic links to attendees of a specific event (ticket management)
+  const handleSendMagicLinksForEvent = async (eventId: number) => {
+    if (!isAdmin) return;
+    if (!confirm('Send Magic Links to all attendees of this event?')) return;
+    setSendingMagicLinks(true);
+    setMagicLinksResult("");
+    try {
+      // Fetch recipient emails from reservations
+      const { data: recipients, error: recErr } = await supabase
+        .from('reservations')
+        .select('visitor_email')
+        .eq('event_id', eventId);
+      if (recErr) throw new Error(recErr.message);
+      const to = Array.from(new Set((recipients || []).map((r: any) => r.visitor_email).filter(Boolean)));
+      if (to.length === 0) { alert('No recipients for this event.'); return; }
+
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const subject = 'Your Mind Harmony gift — access inside';
+      const html = `
+        <div style="font-family:Arial,sans-serif;line-height:1.7;color:#111">
+          <p>Dear [First Name],</p>
+          <p>Thank you for being part of the Mind Harmony community and for sharing in our recent concert. Your presence helps turn music into a true experience of peace, reflection, and connection.</p>
+          <p>As a special thank‑you, here is a gift for you — access to 4 unreleased songs from my upcoming album. I hope they bring you calm and joy.</p>
+          <p style="margin:16px 0"><a href="{{link}}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a></p>
+          <p style="font-size:12px;color:#555">or copy and paste into browser:<br/>{{link}}</p>
+          <p>With gratitude,<br/>Vitià Kulish<br/>Mind Harmony</p>
+        </div>`;
+
+      const resp = await fetch('/api/sendMagicLinksToCommunity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ campaign: `event_attendees_${eventId}`, emails: to, subject, html })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error || 'Failed');
+      setMagicLinksResult(`Sent: ${data.sent} emails`);
+      alert(`Magic links sent to ${data.sent} attendee(s).`);
+    } catch (e: any) {
+      setMagicLinksResult(`Error: ${e?.message || e}`);
+      alert(`Failed to send magic links: ${e?.message || e}`);
+    } finally {
+      setSendingMagicLinks(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="max-w-2xl mx-auto py-12 px-4 text-center">
@@ -656,6 +701,9 @@ export default function AdminPage() {
                             <td className="px-4 py-2 align-top">
                               <Button size="sm" variant="outline" onClick={() => handleSendAnnouncement(event.id)}>
                                 Send Announcement
+                              </Button>
+                              <Button size="sm" className="ml-2" onClick={() => handleSendMagicLinksForEvent(event.id)} disabled={sendingMagicLinks}>
+                                {sendingMagicLinks ? 'Sending…' : 'Send Magic Links to Attendees'}
                               </Button>
                             </td>
                           </tr>
