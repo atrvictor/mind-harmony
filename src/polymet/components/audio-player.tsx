@@ -87,17 +87,8 @@ export default function AudioPlayer({
   useEffect(() => {
     if (!src) return;
     
-    // Check if this is the same source that's already playing
-    const currentAudio = audioManager.getAudio();
-    if (currentAudio && currentAudio.src.includes(src.split('/').pop() || '')) {
-      // Same track is already loaded, just sync the ref and state
-      audioRef.current = currentAudio;
-      setPlayingState(!currentAudio.paused);
-      return;
-    }
-    
-    // Different track, initialize new one
-    const audio = audioManager.initialize(src);
+    // Get or create audio element (reuses existing if same source)
+    const audio = audioManager.getOrCreateAudio(src);
     audioRef.current = audio;
     
     // Apply current settings
@@ -106,6 +97,9 @@ export default function AudioPlayer({
     
     // Sync playing state with actual audio state
     setPlayingState(!audio.paused);
+    
+    // Try to restore if needed
+    audioManager.restoreIfNeeded();
     
   }, [src, loop, audioManager]);
 
