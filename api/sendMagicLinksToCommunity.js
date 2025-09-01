@@ -66,7 +66,7 @@ export default async function handler(req, res) {
 
     // 2) Build a map of first names from the community table (case-insensitive)
     const emailLowerSet = new Set(emailsList.map((e) => String(e).toLowerCase()));
-    const firstNameMap = {};
+    const nameMap = {};
     try {
       const { data: nameRows } = await supa
         .from('community')
@@ -76,8 +76,10 @@ export default async function handler(req, res) {
         if (!emailLowerSet.has(key)) return;
         const full = String(row.name || '').trim();
         if (!full) return;
-        const first = full.split(/\s+/)[0];
-        if (first) firstNameMap[key] = first;
+        const parts = full.split(/\s+/).filter(Boolean);
+        const first = parts[0] || '';
+        const last = parts.length > 1 ? parts[parts.length - 1] : '';
+        nameMap[key] = { first, last, full };
       });
     } catch {}
 
@@ -139,10 +141,12 @@ export default async function handler(req, res) {
           </div>
         `;
       const emailLower = String(email).toLowerCase();
-      const firstNameGuess = firstNameMap[emailLower]
-        || String(email).split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      const fallbackFull = String(email).split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      const name = nameMap[emailLower] || { first: fallbackFull.split(' ')[0] || 'Friend', last: fallbackFull.split(' ').slice(1).join(' '), full: fallbackFull };
       let finalHtml = baseHtml
-        .replace(/\[\s*first\s*name\s*\]/ig, firstNameGuess || 'Friend')
+        .replace(/\[\s*first\s*name\s*\]/ig, name.first || 'Friend')
+        .replace(/\[\s*last\s*name\s*\]/ig, name.last || '')
+        .replace(/\[\s*full\s*name\s*\]/ig, name.full || (name.first || 'Friend'))
         .replace(/\{\{\s*link\s*\}\}/g, trackUrl);
       // Append button+fallback only if the HTML doesn't already contain an anchor to this URL
       const hasAnchor = new RegExp(`<a[^>]+href=["']${trackUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`, 'i').test(finalHtml);
