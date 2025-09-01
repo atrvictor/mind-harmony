@@ -323,7 +323,7 @@ export default function AdminPage() {
         `<div style="font-family:Arial,sans-serif;line-height:1.7;color:#111">`
         + `<p>Dear [First Name],</p>`
         + `<p>Thank you for being part of the Mind Harmony community and for sharing in our recent concerts. Your presence helps turn music into a true experience of peace, reflection, and connection.</p>`
-        + `<p>As a special thank‑you, here is a gift for you — access to 4 unreleased songs from my upcoming album, plus an invitation to become a Mind Harmony member with exclusive benefits.</p>`
+        + `<p>As a special thank‑you, here is a gift for you — access to 4 unreleased songs from Vitià's upcoming album, plus an invitation to become a Mind Harmony member with exclusive benefits.</p>`
         + `<p><strong>Your gift includes:</strong></p>`
         + `<ul style="margin:8px 0;padding-left:20px">`
         + `<li>4 unreleased piano meditation tracks</li>`

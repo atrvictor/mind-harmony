@@ -1,12 +1,34 @@
 import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function MeditationDashboard() {
   const { user } = useAuth();
+  const [firstName, setFirstName] = useState<string>("");
+
+  useEffect(() => {
+    async function fetchUserProfile() {
+      if (user?.email) {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('first_name')
+          .eq('email', user.email)
+          .single();
+        
+        if (data?.first_name) {
+          setFirstName(data.first_name);
+        }
+      }
+    }
+    fetchUserProfile();
+  }, [user?.email]);
+
+  const displayName = firstName || user?.email?.split('@')[0] || "friend";
 
   return (
     <div className="max-w-3xl mx-auto py-16 px-4">
       <h1 className="text-3xl font-bold mb-6 text-center">
-        Welcome, {user?.email}
+        Welcome, {displayName}
       </h1>
       <article className="prose max-w-none mb-10">
         <h2>Grounding Breath Meditation</h2>
