@@ -80,12 +80,28 @@ export default function InvitationLandingPage() {
     }
   }, [email, rid]);
 
+  const allInterests = [
+    "Live piano meditation events",
+    "Candlelight yoga and piano", 
+    "Recorded music and albums",
+    "Guided meditation content",
+    "Community discussions and sharing"
+  ];
+
   const handleInterestToggle = (interest: string) => {
     setFormData(prev => ({
       ...prev,
       interests: prev.interests.includes(interest)
         ? prev.interests.filter(i => i !== interest)
         : [...prev.interests, interest]
+    }));
+  };
+
+  const handleSelectAllInterests = () => {
+    const isAllSelected = allInterests.every(interest => formData.interests.includes(interest));
+    setFormData(prev => ({
+      ...prev,
+      interests: isAllSelected ? [] : [...allInterests]
     }));
   };
 
@@ -346,14 +362,23 @@ export default function InvitationLandingPage() {
               {/* Interests */}
               <div>
                 <Label className="text-base font-medium mb-3 block">What interests you most? (Select all that apply)</Label>
+                
+                {/* Select All Option */}
+                <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="selectAll"
+                      checked={allInterests.every(interest => formData.interests.includes(interest))}
+                      onCheckedChange={handleSelectAllInterests}
+                    />
+                    <Label htmlFor="selectAll" className="font-medium text-sm text-blue-700">
+                      Interested in all
+                    </Label>
+                  </div>
+                </div>
+
                 <div className="grid md:grid-cols-2 gap-3">
-                  {[
-                    "Live piano meditation events",
-                    "Candlelight yoga and piano",
-                    "Recorded music and albums",
-                    "Guided meditation content",
-                    "Community discussions and sharing"
-                  ].map((interest) => (
+                  {allInterests.map((interest) => (
                     <div key={interest} className="flex items-center space-x-2">
                       <Checkbox
                         id={interest}
