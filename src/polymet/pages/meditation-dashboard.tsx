@@ -41,20 +41,29 @@ export default function MeditationDashboard() {
           attention back to your breath.
         </p>
         <p>
-          After a few minutes, allow the piano music below to guide you deeper
-          into relaxation.
+          After a few minutes, allow the piano music to guide you deeper
+          into relaxation. Press play on the music player in the upper right 
+          to hear the music. Feel free to browse around the website - the music 
+          player will follow you on all pages.
         </p>
       </article>
 
-      <div className="aspect-video w-full overflow-hidden rounded-lg shadow-lg">
-        <iframe
-          width="100%"
-          height="100%"
-          src="https://www.youtube.com/embed/2OEL4P1Rz04"
-          title="Piano Meditation"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
+      {/* Future background video placeholder */}
+      <div className="relative w-full h-96 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg overflow-hidden">
+        {/* TODO: Add subtle background video here */}
+        {/* Saved YouTube link for future reference: https://www.youtube.com/embed/2OEL4P1Rz04 */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-gray-600">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/50 flex items-center justify-center">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+              </svg>
+            </div>
+            <p className="text-sm">
+              Let the music guide your meditation journey
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
