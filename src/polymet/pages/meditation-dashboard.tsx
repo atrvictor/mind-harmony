@@ -38,8 +38,13 @@ export default function MeditationDashboard() {
         <source src="/drone for site.mp4" type="video/mp4" />
       </video>
       
+      {/* Hide footer for this page */}
+      <style>{`
+        footer { display: none !important; }
+      `}</style>
+      
       {/* Content positioned at top */}
-      <div className="relative z-10 pt-8 pb-16 px-4">
+      <div className="relative z-10 pt-8 pb-16 px-4 min-h-screen">
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-8 text-white drop-shadow-lg">
             Welcome, {displayName}
@@ -61,9 +66,6 @@ export default function MeditationDashboard() {
             player will follow you on all pages.
           </p>
         </div>
-        
-        {/* Spacer to allow video to be main focus */}
-        <div className="h-96"></div>
       </div>
     </div>
   );
