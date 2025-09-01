@@ -201,7 +201,6 @@ export default function AdminPage() {
       setComposeBody(
         "Hi,\n\n" +
         "Thank you for joining us! As a gift, your access to 4 piano tracks is unlocked.\n\n" +
-        "Sign in here: {{link}}\n\n" +
         "With gratitude,\nVitiá"
       );
     } else {
@@ -217,10 +216,7 @@ export default function AdminPage() {
       alert("Please write a message (it can include {{link}} where the sign-in link should go).");
       return null;
     }
-    // Ensure {{link}} placeholder exists; if not, append a CTA
-    if (!/{{\s*link\s*}}/i.test(body)) {
-      body += "\n\nSign in: {{link}}";
-    }
+    // Do not force-insert {{link}} text; button + fallback will be added below in text mode
     let html: string;
     if (composeIsHtml) {
       html = body;

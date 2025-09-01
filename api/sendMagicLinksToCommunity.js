@@ -114,7 +114,7 @@ export default async function handler(req, res) {
         : `
           <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111">
             <p>Hi,</p>
-            <p>Thank you for joining us yesterday. As a gift, your access to 4 piano meditation tracks is unlocked.</p>
+            <p>Thank you for joining us! As a gift, your access to 4 piano tracks is unlocked.</p>
             <p><a href="{{link}}" style="background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a></p>
             <p style="font-size:12px;color:#555;margin-top:8px">or copy and paste into browser:<br>{{link}}</p>
             <p>With gratitude,<br/>Vitiá</p>
