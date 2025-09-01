@@ -67,6 +67,11 @@ export default function FixedNavigationMenu({ user }: NavigationMenuDemoProps) {
                 <ListItem to="/about" title="About Us">
                   Learn about our story and mission
                 </ListItem>
+                {user && (
+                  <ListItem to="/welcome" title="Member Welcome">
+                    Your personal meditation space with exclusive music
+                  </ListItem>
+                )}
                 <ListItem to="/events" title="Events">
                   Explore our upcoming events and sessions
                 </ListItem>
