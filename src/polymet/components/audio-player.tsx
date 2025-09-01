@@ -56,6 +56,31 @@ export default function AudioPlayer({
     }
   };
 
+  // Save audio state when component unmounts or src changes
+  useEffect(() => {
+    return () => {
+      const audio = audioRef.current;
+      if (audio && !audio.paused) {
+        localStorage.setItem('mh_audio_time', audio.currentTime.toString());
+        localStorage.setItem('mh_audio_playing', 'true');
+      }
+    };
+  }, []);
+
+  // Periodically save current time while playing
+  useEffect(() => {
+    if (!isPlaying) return;
+    
+    const interval = setInterval(() => {
+      const audio = audioRef.current;
+      if (audio && !audio.paused) {
+        localStorage.setItem('mh_audio_time', audio.currentTime.toString());
+      }
+    }, 1000); // Save every second
+    
+    return () => clearInterval(interval);
+  }, [isPlaying]);
+
   // Initialize audio element properties when mounted or when loop changes
   useEffect(() => {
     const audio = audioRef.current;
