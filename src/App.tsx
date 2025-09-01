@@ -174,7 +174,7 @@ export default function MindHarmonyPrototype() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           
           {/* Protected routes */}
-          <Route path="/meditation" element={
+          <Route path="/welcome" element={
             <ProtectedRoute>
               <AuthenticatedLayout>
                 <MeditationDashboard />

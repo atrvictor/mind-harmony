@@ -34,11 +34,27 @@ export default function AudioPlayer({
   userId,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isPlaying, setIsPlaying] = useState<boolean>(() => {
+    // Restore playing state from localStorage
+    return localStorage.getItem('mh_audio_playing') === 'true';
+  });
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.8);
   // Controls persistent visibility of the title. Hover will still temporarily reveal it.
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
+
+  // Helper functions to persist audio state
+  const setPlayingState = (playing: boolean) => {
+    setIsPlaying(playing);
+    localStorage.setItem('mh_audio_playing', playing.toString());
+    if (playing) {
+      // Save current time periodically while playing
+      const audio = audioRef.current;
+      if (audio) {
+        localStorage.setItem('mh_audio_time', audio.currentTime.toString());
+      }
+    }
+  };
 
   // Initialize audio element properties when mounted or when loop changes
   useEffect(() => {
@@ -47,7 +63,23 @@ export default function AudioPlayer({
     audio.loop = loop;
     audio.volume = volume;
     audio.preload = "metadata";
-  }, [loop]);
+    
+    // Restore current time if was playing
+    const savedTime = localStorage.getItem('mh_audio_time');
+    const wasPlaying = localStorage.getItem('mh_audio_playing') === 'true';
+    
+    if (savedTime) {
+      audio.currentTime = parseFloat(savedTime);
+    }
+    
+    // Auto-resume if was playing before navigation
+    if (wasPlaying && src) {
+      audio.play().catch(() => {
+        // Auto-play might be blocked, that's okay
+        setPlayingState(false);
+      });
+    }
+  }, [loop, src]);
 
   // Reflect volume/mute changes on the element
   useEffect(() => {
@@ -167,7 +199,7 @@ export default function AudioPlayer({
     }
     try {
       await audio.play();
-      setIsPlaying(true);
+      setPlayingState(true);
       // Ensure the title is collapsed when playback starts
       setIsExpanded(false);
       try {
@@ -204,7 +236,7 @@ export default function AudioPlayer({
       if (!audio) return;
       try {
         await audio.play();
-        setIsPlaying(true);
+        setPlayingState(true);
         // Do not force title open during playback
         setIsExpanded(false);
       } catch {}
@@ -222,13 +254,13 @@ export default function AudioPlayer({
         audio
           .play()
           .then(() => {
-            setIsPlaying(true);
+            setPlayingState(true);
             setIsExpanded(false);
           })
           .catch(() => {});
       } else {
         audio.pause();
-        setIsPlaying(false);
+        setPlayingState(false);
       }
     };
     window.addEventListener("mh:audio-play", onPlay);

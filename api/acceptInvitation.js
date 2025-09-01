@@ -135,7 +135,7 @@ export default async function handler(req, res) {
     }
 
     // 7. Generate a new magic link for immediate login
-    const loginRedirectTo = `https://mindharmony.life/meditation?welcome=true`;
+    const loginRedirectTo = `https://mindharmony.life/welcome?welcome=true`;
     const { data: loginLink, error: loginError } = await supa.auth.admin.generateLink({
       type: 'magiclink',
       email: emailLower,

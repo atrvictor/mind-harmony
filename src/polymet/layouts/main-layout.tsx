@@ -23,13 +23,24 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
     { src: "/audio/Felt%20Before%20Kindred.mp3", title: "Before Kindred Vitiá Kulish" },
     { src: "/audio/Kindred%20Spirit%20Felt.mp3", title: "Kindred Spirit Vitiá Kulish" },
   ];
-  const [trackIndex, setTrackIndex] = useState(0);
+  const [trackIndex, setTrackIndex] = useState(() => {
+    // Persist track index in localStorage
+    const saved = localStorage.getItem('mh_track_index');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  
   const currentTrack = (isAdmin || hasMusic) ? adminTracks[trackIndex] : { src: "/audio/Kindred%20Spirit%20Felt.mp3", title: "Kindred Spirit Vitiá Kulish" };
+  
   const handlePrev = () => {
-    setTrackIndex((i) => (i - 1 + adminTracks.length) % adminTracks.length);
+    const newIndex = (trackIndex - 1 + adminTracks.length) % adminTracks.length;
+    setTrackIndex(newIndex);
+    localStorage.setItem('mh_track_index', newIndex.toString());
   };
+  
   const handleNext = () => {
-    setTrackIndex((i) => (i + 1) % adminTracks.length);
+    const newIndex = (trackIndex + 1) % adminTracks.length;
+    setTrackIndex(newIndex);
+    localStorage.setItem('mh_track_index', newIndex.toString());
   };
   // Add a state to track scroll position 
   const [scrollPosition, setScrollPosition] = useState(0);

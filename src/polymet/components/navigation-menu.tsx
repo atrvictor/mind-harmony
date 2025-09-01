@@ -72,6 +72,11 @@ export default function NavigationMenuDemo() {
                 <ListItem to="/about" title="About Us">
                   Learn about our story and mission
                 </ListItem>
+                {user && (
+                  <ListItem to="/welcome" title="Member Welcome">
+                    Your personal meditation space with exclusive music
+                  </ListItem>
+                )}
                 <ListItem to="/events" title="Events">
                   Explore our upcoming events and sessions
                 </ListItem>
@@ -167,6 +172,11 @@ export default function NavigationMenuDemo() {
               <MobileNavLink to="/about" onClick={() => setIsOpen(false)}>
                 About
               </MobileNavLink>
+              {user && (
+                <MobileNavLink to="/welcome" onClick={() => setIsOpen(false)}>
+                  Member Welcome
+                </MobileNavLink>
+              )}
               <MobileNavLink to="/events" onClick={() => setIsOpen(false)}>
                 Events
               </MobileNavLink>
