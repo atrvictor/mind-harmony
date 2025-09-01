@@ -213,7 +213,7 @@ export default function AdminPage() {
         + `<p>MindHarmony is a labor of love, and it exists because of the support of people like you. If you feel moved, I invite you to consider making a donation. Your contribution directly helps us cover essential costs (like instruments, sound equipment, and event space) and allows us to continue offering these experiences to the community.</p>`
         + `<p style="margin:20px 0"><a href="https://venmo.com/u/mindharmony" style="display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Donate Here</a></p>`
         + `<p>Whether or not you’re able to give, please know that your presence and energy are already a gift. I look forward to seeing you at future concerts and continuing this journey together.</p>`
-        + `<p>With gratitude,<br/>Victor Kulish<br/>MindHarmony</p>`
+        + `<p>With gratitude,<br/>Vitià Kulish<br/>MindHarmony</p>`
         + `<p><strong>P.S.</strong> As a special thank‑you, I’ve included a gift for you: access to 4 unreleased songs from my upcoming album. Enjoy them:</p>`
         + `<p style="margin:16px 0"><a href="{{link}}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a></p>`
         + `<p style="font-size:12px;color:#555">or copy and paste into browser:<br/>{{link}}</p>`
