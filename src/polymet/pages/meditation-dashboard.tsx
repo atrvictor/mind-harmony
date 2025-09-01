@@ -39,13 +39,13 @@ export default function MeditationDashboard() {
       </video>
       
       {/* Content overlay */}
-      <div className="relative z-10 max-w-3xl mx-auto py-16 px-4">
-        <h1 className="text-3xl font-bold mb-6 text-center text-white drop-shadow-lg">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+        <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center text-white drop-shadow-lg">
           Welcome, {displayName}
         </h1>
-        <article className="prose max-w-none mb-10 text-white">
-          <h2 className="text-white">Grounding Breath Meditation</h2>
-          <p className="text-white/90">
+        <div className="max-w-2xl text-center">
+          <h2 className="text-2xl font-semibold mb-6 text-white drop-shadow-lg">Grounding Breath Meditation</h2>
+          <p className="text-lg text-white/90 drop-shadow mb-6 leading-relaxed">
             Find a comfortable seated position. Close your eyes and take a deep
             breath in through your nose, allowing your abdomen to expand. Slowly
             exhale through your mouth, releasing any tension. Continue this
@@ -53,13 +53,13 @@ export default function MeditationDashboard() {
             leaving your body. If your mind wanders, gently redirect your
             attention back to your breath.
           </p>
-          <p className="text-white/90">
+          <p className="text-lg text-white/90 drop-shadow leading-relaxed">
             After a few minutes, allow the piano music to guide you deeper
             into relaxation. Press play on the music player in the upper right 
             to hear the music. Feel free to browse around the website - the music 
             player will follow you on all pages.
           </p>
-        </article>
+        </div>
       </div>
     </div>
   );
