@@ -54,6 +54,10 @@ export default function AdminPage() {
   const [sendingCustom, setSendingCustom] = React.useState(false);
   const [composeIsHtml, setComposeIsHtml] = React.useState(false);
   const [deletingCommunity, setDeletingCommunity] = React.useState<Set<string>>(new Set());
+  const [invitations, setInvitations] = React.useState<any[]>([]);
+  const [csvData, setCsvData] = React.useState<any[]>([]);
+  const [csvFileName, setCsvFileName] = React.useState<string>("");
+  const [showCsvPreview, setShowCsvPreview] = React.useState(false);
 
   function normalizeEmail(e?: string | null) {
     return (e || "").trim().toLowerCase();
@@ -123,6 +127,99 @@ export default function AdminPage() {
   function clearSelected() {
     setSelectedEmails(new Set());
   }
+
+  // CSV Upload and Processing Functions
+  const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setCsvFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        alert('CSV file appears to be empty or invalid');
+        return;
+      }
+
+      const headers = lines[0].split(',').map(h => h.trim());
+      const emailIndex = headers.findIndex(h => h.toLowerCase().includes('email'));
+      const firstNameIndex = headers.findIndex(h => h.toLowerCase().includes('first'));
+      const lastNameIndex = headers.findIndex(h => h.toLowerCase().includes('last'));
+      const cityIndex = headers.findIndex(h => h.toLowerCase().includes('city'));
+      const stateIndex = headers.findIndex(h => h.toLowerCase().includes('state'));
+      const eventNameIndex = headers.findIndex(h => h.toLowerCase().includes('event name'));
+      const eventDateIndex = headers.findIndex(h => h.toLowerCase().includes('event start date'));
+
+      if (emailIndex === -1) {
+        alert('CSV file must contain an email column');
+        return;
+      }
+
+      const parsedData = lines.slice(1)
+        .filter(line => line.trim() && !line.startsWith('TOTALS'))
+        .map(line => {
+          const cols = line.split(',').map(c => c.trim().replace(/"/g, ''));
+          return {
+            email: cols[emailIndex]?.toLowerCase().trim(),
+            firstName: cols[firstNameIndex] || '',
+            lastName: cols[lastNameIndex] || '',
+            city: cols[cityIndex] || '',
+            state: cols[stateIndex] || '',
+            eventName: cols[eventNameIndex] || '',
+            eventDate: cols[eventDateIndex] || '',
+            fullName: `${cols[firstNameIndex] || ''} ${cols[lastNameIndex] || ''}`.trim()
+          };
+        })
+        .filter(row => row.email && row.email.includes('@'));
+
+      // Group by event for segmentation
+      const eventGroups = parsedData.reduce((groups, attendee) => {
+        const event = attendee.eventName || 'Unknown Event';
+        if (!groups[event]) groups[event] = [];
+        groups[event].push(attendee);
+        return groups;
+      }, {} as Record<string, typeof parsedData>);
+
+      setCsvData(parsedData);
+      setShowCsvPreview(true);
+      
+      console.log('CSV processed:', {
+        totalAttendees: parsedData.length,
+        eventGroups: Object.keys(eventGroups).map(event => ({
+          event,
+          count: eventGroups[event].length
+        }))
+      });
+    };
+    reader.readAsText(file);
+  };
+
+  const selectAllFromCsv = () => {
+    const emails = csvData.map(row => row.email).filter(Boolean);
+    setSelectedEmails(new Set(emails));
+  };
+
+  const selectEventGroup = (eventName: string) => {
+    const eventAttendees = csvData.filter(row => row.eventName === eventName);
+    const emails = eventAttendees.map(row => row.email).filter(Boolean);
+    setSelectedEmails(prev => {
+      const newSet = new Set(prev);
+      emails.forEach(email => newSet.add(email));
+      return newSet;
+    });
+  };
+
+  const getEventGroups = () => {
+    return csvData.reduce((groups, attendee) => {
+      const event = attendee.eventName || 'Unknown Event';
+      if (!groups[event]) groups[event] = [];
+      groups[event].push(attendee);
+      return groups;
+    }, {} as Record<string, typeof csvData>);
+  };
 
   // Helper: load click/play stats via secure API (service role)
   async function loadStatsForCommunity(communityList: any[]) {
@@ -225,10 +322,17 @@ export default function AdminPage() {
       setComposeBody(
         `<div style="font-family:Arial,sans-serif;line-height:1.7;color:#111">`
         + `<p>Dear [First Name],</p>`
-        + `<p>Thank you for being part of the Mind Harmony community and for sharing in our recent concert. Your presence helps turn music into a true experience of peace, reflection, and connection.</p>`
-        + `<p>As a special thank‑you, here is a gift for you — access to 4 unreleased songs from my upcoming album. I hope they bring you calm and joy.</p>`
-        + `<p style="margin:16px 0"><a href="{{link}}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a></p>`
+        + `<p>Thank you for being part of the Mind Harmony community and for sharing in our recent concerts. Your presence helps turn music into a true experience of peace, reflection, and connection.</p>`
+        + `<p>As a special thank‑you, here is a gift for you — access to 4 unreleased songs from my upcoming album, plus an invitation to become a Mind Harmony member with exclusive benefits.</p>`
+        + `<p><strong>Your gift includes:</strong></p>`
+        + `<ul style="margin:8px 0;padding-left:20px">`
+        + `<li>4 unreleased piano meditation tracks</li>`
+        + `<li>Mind Harmony membership with early access to events</li>`
+        + `<li>Exclusive community updates and offers</li>`
+        + `</ul>`
+        + `<p style="margin:16px 0"><a href="{{link}}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:500">Claim Your Gift & Join</a></p>`
         + `<p style="font-size:12px;color:#555">or copy and paste into browser:<br/>{{link}}</p>`
+        + `<p style="font-size:12px;color:#777;margin-top:16px">This invitation expires in 30 days. We respect your privacy and will never share your information.</p>`
         + `<p>With gratitude,<br/>Vitià Kulish<br/>Mind Harmony</p>`
         + `</div>`
       );
@@ -316,7 +420,9 @@ export default function AdminPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
-          campaign: 'concert_followup',
+          campaign: composeSubject.toLowerCase().includes('gift') || composeBody.includes('unreleased songs') 
+            ? 'past_attendee_invitation' 
+            : 'concert_followup',
           emails: to.length > 0 ? to : undefined,
           subject: payload.subject,
           html: payload.html
@@ -392,6 +498,13 @@ export default function AdminPage() {
           .from("newsletter")
           .select("email, created_at")
           .order("created_at", { ascending: false });
+        
+        // Fetch invitation summary
+        const { data: invitationsData, error: invitationsError } = await supabase
+          .from("invitation_summary")
+          .select("*")
+          .order("sent_at", { ascending: false });
+        
         if (eventsError || reservationsError || communityError || waitlistError || newsletterError) {
           setError("Failed to fetch data from Supabase.");
         } else {
@@ -401,6 +514,7 @@ export default function AdminPage() {
           setCommunity(communityList);
           setWaitlist(waitlistData || []);
           setNewsletter(newsletterData || []);
+          setInvitations(invitationsData || []);
           await loadStatsForCommunity(communityList);
         }
       } catch (err: any) {
@@ -780,6 +894,84 @@ export default function AdminPage() {
               }}>Refresh</Button>
             </div>
             {/* Bulk email compose */}
+            {/* CSV Upload Widget */}
+            <div className="mb-4 p-4 border rounded-lg bg-blue-50">
+              <h3 className="font-semibold mb-3">📊 Import Attendees from CSV</h3>
+              <div className="space-y-3">
+                <div>
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={handleCsvUpload}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {csvFileName && (
+                    <p className="text-xs text-gray-600 mt-1">Loaded: {csvFileName}</p>
+                  )}
+                </div>
+                
+                {showCsvPreview && csvData.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Found {csvData.length} attendees</span>
+                      <Button size="sm" onClick={selectAllFromCsv}>Select All ({csvData.length})</Button>
+                    </div>
+                    
+                    {/* Event Segmentation */}
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-gray-700">Select by Event:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(getEventGroups()).map(([eventName, attendees]) => (
+                          <Button
+                            key={eventName}
+                            size="sm"
+                            variant="outline"
+                            onClick={() => selectEventGroup(eventName)}
+                            className="text-xs"
+                          >
+                            {eventName.includes('February') ? 'Feb' : 
+                             eventName.includes('March') ? 'Mar' :
+                             eventName.includes('April') ? 'Apr' :
+                             eventName.includes('July') ? 'Jul' :
+                             eventName.includes('August') ? 'Aug' :
+                             eventName.split(' ').slice(0, 2).join(' ')} ({attendees.length})
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Location Segmentation */}
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-gray-700">Select by Location:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {Array.from(new Set(csvData.map(a => a.city).filter(Boolean))).slice(0, 6).map(city => {
+                          const count = csvData.filter(a => a.city === city).length;
+                          return (
+                            <Button
+                              key={city}
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const cityEmails = csvData.filter(a => a.city === city).map(a => a.email);
+                                setSelectedEmails(prev => {
+                                  const newSet = new Set(prev);
+                                  cityEmails.forEach(email => newSet.add(email));
+                                  return newSet;
+                                });
+                              }}
+                              className="text-xs"
+                            >
+                              {city} ({count})
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="mb-4 p-4 border rounded-lg bg-gray-50">
               <div className="mb-2">
                 <Input
@@ -900,6 +1092,57 @@ export default function AdminPage() {
                       <tr key={i} className="border-b last:border-b-0">
                         <td className="px-4 py-2">{w.email}</td>
                         <td className="px-4 py-2 text-sm text-gray-500">{w.created_at ? new Date(w.created_at).toLocaleString() : ""}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Invitations Status */}
+          <section>
+            <h2 className="text-xl font-semibold mb-4">Invitation Status</h2>
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 border-b text-left">Email</th>
+                    <th className="px-4 py-2 border-b text-left">Name</th>
+                    <th className="px-4 py-2 border-b text-left">Status</th>
+                    <th className="px-4 py-2 border-b text-left">Sent</th>
+                    <th className="px-4 py-2 border-b text-left">Accepted</th>
+                    <th className="px-4 py-2 border-b text-left">Phone</th>
+                    <th className="px-4 py-2 border-b text-left">Interests</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invitations.length === 0 ? (
+                    <tr><td colSpan={7} className="px-4 py-2 text-center text-gray-500">No invitations sent yet.</td></tr>
+                  ) : (
+                    invitations.map((inv, i) => (
+                      <tr key={i} className="border-b last:border-b-0">
+                        <td className="px-4 py-2 text-sm">{inv.email}</td>
+                        <td className="px-4 py-2 text-sm">{inv.first_name} {inv.last_name}</td>
+                        <td className="px-4 py-2">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            inv.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                            inv.status === 'expired' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {inv.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-500">
+                          {inv.sent_at ? new Date(inv.sent_at).toLocaleDateString() : ''}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-500">
+                          {inv.accepted_at ? new Date(inv.accepted_at).toLocaleDateString() : ''}
+                        </td>
+                        <td className="px-4 py-2 text-sm">{inv.phone || ''}</td>
+                        <td className="px-4 py-2 text-sm">
+                          {inv.interests ? inv.interests.slice(0, 2).join(', ') + (inv.interests.length > 2 ? '...' : '') : ''}
+                        </td>
                       </tr>
                     ))
                   )}

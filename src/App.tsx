@@ -20,6 +20,9 @@ import AdminSetupPage from "@/polymet/pages/admin-setup";
 import LoginPage from "@/polymet/pages/login-page";
 import AdminPage from "@/polymet/pages/admin";
 import ReservePage from "@/polymet/pages/reserve-page";
+import TermsOfServicePage from "@/polymet/pages/terms-of-service";
+import PrivacyPolicyPage from "@/polymet/pages/privacy-policy";
+import InvitationLandingPage from "@/polymet/pages/invitation-landing";
 
 // User Profile button component that can be added to navigation
 function UserProfileButton() {
@@ -194,6 +197,13 @@ export default function MindHarmonyPrototype() {
             </AuthenticatedLayout>
           } />
           <Route path="/join" element={<JoinPage />} />
+          
+          {/* Legal pages */}
+          <Route path="/terms" element={<TermsOfServicePage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          
+          {/* Invitation flow */}
+          <Route path="/invitation" element={<InvitationLandingPage />} />
           
           {/* Auth routes */}
           <Route path="/login" element={<LoginPage />} />

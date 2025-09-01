@@ -58,6 +58,14 @@ export default async function handler(req, res) {
       await supa.rpc('increment_magic_link_click', { rid_in: rid });
     } catch {}
 
+    // Check if this is an invitation campaign - redirect to landing page instead of direct auth
+    if (data.campaign && data.campaign.includes('invitation')) {
+      const invitationUrl = `https://mindharmony.life/invitation?rid=${encodeURIComponent(rid)}&email=${encodeURIComponent(data.email)}&campaign=${encodeURIComponent(data.campaign)}`;
+      res.writeHead(302, { Location: invitationUrl });
+      return res.end();
+    }
+
+    // For non-invitation campaigns, use original direct auth flow
     res.writeHead(302, { Location: data.action_link });
     return res.end();
   } catch (e) {
