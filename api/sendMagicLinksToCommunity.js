@@ -105,7 +105,8 @@ export default async function handler(req, res) {
 
       const trackUrl = `https://mindharmony.life/api/m?rid=${encodeURIComponent(rid)}`;
 
-      // Build per-recipient email using provided subject/html or fallback
+      // Build per-recipient email using provided subject/html or fallback.
+      // Replace [First Name] if present using email local‑part as a simple guess (can be improved to real profile lookup)
       const finalSubject = subject && typeof subject === 'string' && subject.trim().length > 0
         ? subject
         : 'Your Mind Harmony access';
@@ -120,7 +121,10 @@ export default async function handler(req, res) {
             <p>With gratitude,<br/>Vitiá</p>
           </div>
         `;
-      let finalHtml = baseHtml.replace(/\{\{\s*link\s*\}\}/g, trackUrl);
+      const firstNameGuess = String(email).split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+      let finalHtml = baseHtml
+        .replace(/\[\s*first\s*name\s*\]/ig, firstNameGuess || 'Friend')
+        .replace(/\{\{\s*link\s*\}\}/g, trackUrl);
       // Append button+fallback only if the HTML doesn't already contain an anchor to this URL
       const hasAnchor = new RegExp(`<a[^>]+href=["']${trackUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`, 'i').test(finalHtml);
       if (!hasAnchor) {
