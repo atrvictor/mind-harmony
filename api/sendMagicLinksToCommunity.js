@@ -116,7 +116,7 @@ export default async function handler(req, res) {
             <p>Hi,</p>
             <p>Thank you for joining us yesterday. As a gift, your access to 4 piano meditation tracks is unlocked.</p>
             <p><a href="{{link}}" style="background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Sign in with Magic Link</a></p>
-            <p>If the button doesn't work, copy and paste this link:<br>{{link}}</p>
+            <p style="font-size:12px;color:#555;margin-top:8px">or copy and paste into browser:<br>{{link}}</p>
             <p>With gratitude,<br/>Vitiá</p>
           </div>
         `;
@@ -127,7 +127,7 @@ export default async function handler(req, res) {
         const fallbackBlock = `
           <div style=\"font-family:Arial,sans-serif;line-height:1.6;color:#111;margin-top:12px\">
             <a href=\"${trackUrl}\" style=\"display:inline-block;background:#1E3A5F;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none\">Sign in with Magic Link</a>
-            <div style=\"font-size:12px;color:#666;margin-top:8px\">If the button doesn't work, copy and paste this link: <span style=\"word-break:break-all\">${trackUrl}</span></div>
+            <div style=\"font-size:12px;color:#555;margin-top:8px\">or copy and paste into browser: <span style=\"word-break:break-all\">${trackUrl}</span></div>
           </div>
         `;
         finalHtml = `${finalHtml}${fallbackBlock}`;
