@@ -28,7 +28,7 @@ export default function MeditationDashboard() {
   const displayName = firstName || user?.email?.split('@')[0] || "friend";
 
   return (
-    <div className="relative">
+    <div className="relative welcome-page">
       {/* Full-page background video */}
       <video
         autoPlay
@@ -37,18 +37,9 @@ export default function MeditationDashboard() {
         playsInline
         preload="metadata"
         className="fixed inset-0 w-full h-full object-cover z-0"
-        style={{ 
-          // Ensure video doesn't interfere with audio
-          isolation: 'isolate'
-        }}
       >
         <source src="/drone for site.mp4" type="video/mp4" />
       </video>
-      
-      {/* Hide footer for this page */}
-      <style>{`
-        footer { display: none !important; }
-      `}</style>
       
       {/* Content positioned at top */}
       <div className="relative z-10 pt-8 pb-16 px-4 min-h-screen">
