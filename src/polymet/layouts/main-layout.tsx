@@ -15,7 +15,10 @@ interface MainLayoutProps {
 export default function MainLayout({ children, user }: MainLayoutProps) {
   const adminEmails = ["atrvictor@gmail.com", "mashashen@yahoo.com"]; 
   const isAdmin = !!(user && user.email && adminEmails.includes(user.email));
-  const [hasMusic, setHasMusic] = useState(false);
+  const [hasMusic, setHasMusic] = useState(() => {
+    // Initialize from localStorage to prevent state changes
+    return localStorage.getItem('mh_has_music') === 'true';
+  });
 
   const adminTracks = [
     { src: "/audio/Felt%20Before%20Whisper.mp3", title: "Before Whisper Vitiá Kulish" },
@@ -69,10 +72,13 @@ export default function MainLayout({ children, user }: MainLayoutProps) {
           .ilike('email', user.email)
           .maybeSingle();
         if (!active) return;
-        setHasMusic(!!data && !error);
+        const musicAccess = !!data && !error;
+        setHasMusic(musicAccess);
+        localStorage.setItem('mh_has_music', musicAccess.toString());
       } catch {
         if (!active) return;
         setHasMusic(false);
+        localStorage.setItem('mh_has_music', 'false');
       }
     }
     checkMusic();
