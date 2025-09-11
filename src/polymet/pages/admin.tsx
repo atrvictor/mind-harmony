@@ -774,11 +774,18 @@ export default function AdminPage() {
           <h2 className="text-xl font-semibold mb-4">Admin Sections</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <a 
-              href="/admin/eventmanagement" 
+              href="/admin/eventreservations" 
               className="block p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
             >
-              <h3 className="font-semibold text-blue-900 mb-2">Event Management</h3>
-              <p className="text-sm text-blue-700">Manage events, reservations, and tickets</p>
+              <h3 className="font-semibold text-blue-900 mb-2">Event Reservations</h3>
+              <p className="text-sm text-blue-700">View and manage event reservations</p>
+            </a>
+            <a 
+              href="/admin/eventmanagement" 
+              className="block p-4 bg-green-50 hover:bg-green-100 rounded-lg border border-green-200 transition-colors"
+            >
+              <h3 className="font-semibold text-green-900 mb-2">Event Management</h3>
+              <p className="text-sm text-green-700">Create and edit events for main and VIP pages</p>
             </a>
             <div className="block p-4 bg-gray-50 rounded-lg border border-gray-200">
               <h3 className="font-semibold text-gray-700 mb-2">Community Management</h3>
@@ -1444,4 +1451,4 @@ export default function AdminPage() {
       )}
     </div>
   );
-} 
+}

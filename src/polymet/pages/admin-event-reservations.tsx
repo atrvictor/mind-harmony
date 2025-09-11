@@ -26,7 +26,7 @@ interface Reservation {
   created_at: string;
 }
 
-export default function AdminEventManagement() {
+export default function AdminEventReservations() {
   const { user } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -229,7 +229,7 @@ export default function AdminEventManagement() {
           </Link>
         </div>
 
-        <h1 className="text-3xl font-bold mb-8 text-center">Event Management</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center">Event Reservations</h1>
 
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 text-center">
