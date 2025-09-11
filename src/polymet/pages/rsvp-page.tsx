@@ -93,10 +93,10 @@ export default function RsvpPage() {
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">RSVP</h1>
-            <p className="max-w-2xl mx-auto text-lg">
-              Reserve your spot at our transformative events
+          <div className="text-center text-white px-4 max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">RSVP</h1>
+            <p className="text-base md:text-lg lg:text-xl leading-relaxed">
+              Join us for a breathtaking sunset on top of Mt. Soledad in La Jolla, for a relaxing live piano to headphones experience accompanied by guided breathwork & grounding meditation. Limited headphones available, please RSVP to reserve your spot.
             </p>
           </div>
         </div>
