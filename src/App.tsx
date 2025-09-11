@@ -18,6 +18,7 @@ import ResetPasswordPage from "@/polymet/pages/reset-password";
 import AdminSetupPage from "@/polymet/pages/admin-setup";
 import LoginPage from "@/polymet/pages/login-page";
 import AdminPage from "@/polymet/pages/admin";
+import AdminEventManagement from "@/polymet/pages/admin-event-management";
 import ReservePage from "@/polymet/pages/reserve-page";
 import RsvpPage from "@/polymet/pages/rsvp-page";
 import VipReservePage from "@/polymet/pages/vip-reserve-page";
@@ -169,6 +170,11 @@ export default function MindHarmonyPrototype() {
           <Route path="/admin" element={
             <AuthenticatedLayout>
               <AdminPage />
+            </AuthenticatedLayout>
+          } />
+          <Route path="/admin/eventmanagement" element={
+            <AuthenticatedLayout>
+              <AdminEventManagement />
             </AuthenticatedLayout>
           } />
           

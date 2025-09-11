@@ -768,6 +768,30 @@ export default function AdminPage() {
     <div className="max-w-7xl mx-auto py-12 px-4">
       <h1 className="text-3xl font-bold mb-8 text-center">Admin Dashboard</h1>
       
+      {/* Navigation Section */}
+      <section className="mb-8">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold mb-4">Admin Sections</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a 
+              href="/admin/eventmanagement" 
+              className="block p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
+            >
+              <h3 className="font-semibold text-blue-900 mb-2">Event Management</h3>
+              <p className="text-sm text-blue-700">Manage events, reservations, and tickets</p>
+            </a>
+            <div className="block p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h3 className="font-semibold text-gray-700 mb-2">Community Management</h3>
+              <p className="text-sm text-gray-600">View and manage community members (current page)</p>
+            </div>
+            <div className="block p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h3 className="font-semibold text-gray-700 mb-2">SMS & Communications</h3>
+              <p className="text-sm text-gray-600">Send messages and announcements (current page)</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
       {/* Events Management Section */}
       <section className="mb-12">
         <AdminEventsManagement />
