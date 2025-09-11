@@ -1,7 +1,6 @@
 // The simplest possible app to isolate the issue
 import * as React from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 // Import all original page components
@@ -20,63 +19,16 @@ import AdminSetupPage from "@/polymet/pages/admin-setup";
 import LoginPage from "@/polymet/pages/login-page";
 import AdminPage from "@/polymet/pages/admin";
 import ReservePage from "@/polymet/pages/reserve-page";
+import RsvpPage from "@/polymet/pages/rsvp-page";
+import VipReservePage from "@/polymet/pages/vip-reserve-page";
 import TermsOfServicePage from "@/polymet/pages/terms-of-service";
 import PrivacyPolicyPage from "@/polymet/pages/privacy-policy";
 import InvitationLandingPage from "@/polymet/pages/invitation-landing";
 import MeditationDashboard from "@/polymet/pages/meditation-dashboard";
-
-// User Profile button component that can be added to navigation
-function UserProfileButton() {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-  
-  if (!user) return null;
-  
-  return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <button 
-        onClick={async () => {
-          await signOut();
-          navigate('/');
-        }}
-        style={{
-          backgroundColor: 'transparent',
-          border: '1px solid #1E3A5F',
-          color: '#1E3A5F',
-          padding: '5px 10px',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
-        Logout
-      </button>
-    </div>
-  );
-}
+import FriendGiftPage from "@/polymet/pages/friend-gift-page";
+import ErrorBoundary from "@/polymet/components/error-boundary";
 
 
-
-// Protected route component
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
-  React.useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
-    }
-  }, [user, loading, navigate]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return null; // Will redirect via useEffect
-  }
-
-  return <>{children}</>;
-}
 
 // Add Auth Status component for debugging
 function AuthStatus() {
@@ -92,10 +44,12 @@ function AuthStatus() {
         right: '10px', 
         background: 'rgba(0,0,0,0.7)', 
         color: 'white',
-        padding: '5px 10px',
-        borderRadius: '4px',
-        fontSize: '12px',
-        zIndex: 9999
+        padding: '3px 6px',
+        borderRadius: '3px',
+        fontSize: '8px',
+        zIndex: 9999,
+        transform: 'scale(0.5)',
+        transformOrigin: 'bottom right'
       }}
     >
       Logged in as: {user.email}
@@ -155,6 +109,18 @@ export default function MindHarmonyPrototype() {
               <ReservePage />
             </AuthenticatedLayout>
           } />
+          <Route path="/rsvp" element={
+            <AuthenticatedLayout>
+              <ErrorBoundary>
+                <RsvpPage />
+              </ErrorBoundary>
+            </AuthenticatedLayout>
+          } />
+          <Route path="/vip" element={
+            <AuthenticatedLayout>
+              <VipReservePage />
+            </AuthenticatedLayout>
+          } />
           <Route path="/program" element={
             <AuthenticatedLayout>
               <ProgramPage />
@@ -168,6 +134,11 @@ export default function MindHarmonyPrototype() {
           
           {/* Invitation flow */}
           <Route path="/invitation" element={<InvitationLandingPage />} />
+          <Route path="/friend" element={
+            <AuthenticatedLayout>
+              <FriendGiftPage />
+            </AuthenticatedLayout>
+          } />
           
           {/* Auth routes */}
           <Route path="/login" element={<LoginPage />} />
@@ -175,11 +146,9 @@ export default function MindHarmonyPrototype() {
           
           {/* Protected routes */}
           <Route path="/welcome" element={
-            <ProtectedRoute>
-              <AuthenticatedLayout>
-                <MeditationDashboard />
-              </AuthenticatedLayout>
-            </ProtectedRoute>
+            <AuthenticatedLayout>
+              <MeditationDashboard />
+            </AuthenticatedLayout>
           } />
           
           {/* Profile page without nested layouts */}
