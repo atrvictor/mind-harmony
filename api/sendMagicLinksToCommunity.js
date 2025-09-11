@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
+import twilio from 'twilio';
 import crypto from 'crypto';
 
 export default async function handler(req, res) {
@@ -10,7 +11,7 @@ export default async function handler(req, res) {
   const url = process.env.VITE_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const EMAIL_FROM = process.env.EMAIL_FROM || 'Mind Harmony <events@mail.mindharmony.life>';
+  const EMAIL_FROM = process.env.EMAIL_FROM || 'Vitià Kulish <vitia@mindharmony.life>';
 
   if (!url || !serviceKey || !RESEND_API_KEY) {
     return res.status(500).json({ error: 'Missing required environment variables' });
@@ -19,7 +20,60 @@ export default async function handler(req, res) {
   const supa = createClient(url, serviceKey);
   const resend = new Resend(RESEND_API_KEY);
 
-  const { campaign = 'concert_followup', emails, subject, html } = req.body || {};
+  const { campaign = 'concert_followup', emails, subject, html, phone, message } = req.body || {};
+  
+  // Handle single SMS request
+  if (phone && message) {
+    try {
+      // Initialize Twilio client
+      if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_PHONE_NUMBER) {
+        return res.status(500).json({ error: 'Twilio credentials not configured' });
+      }
+      
+      const client = twilio(
+        process.env.TWILIO_ACCOUNT_SID,
+        process.env.TWILIO_AUTH_TOKEN
+      );
+
+      // Format phone number
+      const formattedPhone = phone.startsWith('+') ? phone : `+1${phone.replace(/\D/g, '')}`;
+
+      // Send SMS
+      const smsResult = await client.messages.create({
+        body: message,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: formattedPhone
+      });
+
+      console.log(`SMS sent to ${formattedPhone}:`, smsResult.sid);
+
+      // Track SMS dispatch
+      await supa
+        .from('sms_dispatches')
+        .insert([{
+          phone_number: formattedPhone,
+          campaign: campaign,
+          message_sid: smsResult.sid,
+          status: 'sent',
+          message_preview: message.substring(0, 100),
+          sent_at: new Date().toISOString()
+        }]);
+
+      return res.status(200).json({ 
+        success: true, 
+        message: 'SMS sent successfully',
+        messageSid: smsResult.sid,
+        to: formattedPhone
+      });
+
+    } catch (error) {
+      console.error('SMS send error:', error);
+      return res.status(500).json({ 
+        error: 'Failed to send SMS', 
+        details: error.message 
+      });
+    }
+  }
 
   // Require an authenticated admin caller
   try {

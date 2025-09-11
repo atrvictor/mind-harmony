@@ -34,6 +34,19 @@ export default function AudioPlayer({
   userEmail,
   userId,
 }: AudioPlayerProps) {
+  
+  // Helper function to get or generate anonymous session ID
+  const getAnonymousSessionId = () => {
+    if (userEmail || userId) return undefined; // Not anonymous if logged in
+    
+    let sessionId = localStorage.getItem('mh_anonymous_session');
+    if (!sessionId) {
+      sessionId = 'anon_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('mh_anonymous_session', sessionId);
+      console.log('🎵 Generated anonymous session ID:', sessionId);
+    }
+    return sessionId;
+  };
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(() => {
     // Restore playing state from localStorage
@@ -97,7 +110,10 @@ export default function AudioPlayer({
     // Sync playing state with actual audio state
     setPlayingState(!audio.paused);
     
-  }, [src, title, loop]);
+    console.log('Audio initialized for track:', title, 'Has onNext:', !!onNext, 'Loop:', loop);
+    console.log('Audio element:', audio, 'Current src:', audio.src);
+    
+  }, [src, title, loop, onNext]);
 
   // Reflect volume/mute changes on the element
   useEffect(() => {
@@ -111,10 +127,19 @@ export default function AudioPlayer({
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+    
     const onEnded = () => {
+      console.log('🎵 Track ended:', title);
+      console.log('🎵 Should auto-advance:', !loop && !!onNext);
+      console.log('🎵 Loop setting:', loop);
+      console.log('🎵 Has onNext function:', !!onNext);
+      
       try {
         const rid = localStorage.getItem('mh_rid') || undefined;
         const campaign = localStorage.getItem('mh_campaign') || undefined;
+        
+        const anonymousSessionId = getAnonymousSessionId();
+        
         fetch('/api/trackAudio', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -127,19 +152,45 @@ export default function AudioPlayer({
             position: audio.currentTime,
             duration: isFinite(audio.duration) ? audio.duration : undefined,
             rid,
-            campaign
+            campaign,
+            anonymousSessionId
           })
         }).catch(() => {});
       } catch {}
+      
+      // Auto-advance to next track if not looping and onNext is available
       if (!loop && onNext) {
+        console.log('🎵 Auto-advancing to next track...');
+        onNext();
+      } else if (loop) {
+        console.log('🎵 Track set to loop - not advancing');
+      } else {
+        console.log('🎵 No onNext function - cannot advance');
+      }
+    };
+    
+    // More aggressive backup timer to ensure auto-advance works
+    const checkForEnd = () => {
+      if (!audio || audio.paused || loop || !onNext) return;
+      
+      // If track is very close to the end (within 1 second) and hasn't triggered ended event
+      if (audio.duration > 0 && audio.currentTime >= audio.duration - 1.0) {
+        console.log('🎵 Backup auto-advance triggered for:', title, 'at', audio.currentTime, '/', audio.duration);
+        console.log('🎵 This ensures continuous playlist looping');
+        // Remove the timeupdate listener to prevent multiple triggers
+        audio.removeEventListener('timeupdate', checkForEnd);
         onNext();
       }
     };
+    
     audio.addEventListener('ended', onEnded);
+    audio.addEventListener('timeupdate', checkForEnd);
+    
     return () => {
       audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('timeupdate', checkForEnd);
     };
-  }, [onNext, loop, src]);
+  }, [onNext, loop, src, title]);
 
   // If source changes, (re)load and if currently playing, auto-play the new source
   useEffect(() => {
@@ -155,6 +206,8 @@ export default function AudioPlayer({
             try {
               const rid = localStorage.getItem('mh_rid') || undefined;
               const campaign = localStorage.getItem('mh_campaign') || undefined;
+              const anonymousSessionId = getAnonymousSessionId();
+              
               await fetch('/api/trackAudio', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -167,7 +220,8 @@ export default function AudioPlayer({
                   position: audio.currentTime,
                   duration: isFinite(audio.duration) ? audio.duration : undefined,
                   rid,
-                  campaign
+                  campaign,
+                  anonymousSessionId
                 })
               });
             } catch {}
@@ -196,6 +250,8 @@ export default function AudioPlayer({
       try {
         const rid = localStorage.getItem('mh_rid') || undefined;
         const campaign = localStorage.getItem('mh_campaign') || undefined;
+        const anonymousSessionId = getAnonymousSessionId();
+        
         await fetch('/api/trackAudio', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -208,7 +264,8 @@ export default function AudioPlayer({
             position: audio.currentTime,
             duration: isFinite(audio.duration) ? audio.duration : undefined,
             rid,
-            campaign
+            campaign,
+            anonymousSessionId
           })
         });
       } catch {}
@@ -223,6 +280,8 @@ export default function AudioPlayer({
       try {
         const rid = localStorage.getItem('mh_rid') || undefined;
         const campaign = localStorage.getItem('mh_campaign') || undefined;
+        const anonymousSessionId = getAnonymousSessionId();
+        
         await fetch('/api/trackAudio', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -235,7 +294,8 @@ export default function AudioPlayer({
             position: audio.currentTime,
             duration: isFinite(audio.duration) ? audio.duration : undefined,
             rid,
-            campaign
+            campaign,
+            anonymousSessionId
           })
         });
       } catch {}
@@ -315,7 +375,7 @@ export default function AudioPlayer({
   };
 
   return (
-    <div className="fixed top-20 right-4 z-[9998]">
+    <div className="fixed left-1/2 transform -translate-x-1/2 z-[9998] scale-[0.67]" style={{ top: '50px' }}>
       <div
         className="group flex items-center gap-2 rounded-xl border border-border bg-white/90 dark:bg-card/90 backdrop-blur px-3 py-2 shadow-lg"
         title={title}

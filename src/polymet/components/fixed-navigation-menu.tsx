@@ -67,16 +67,11 @@ export default function FixedNavigationMenu({ user }: NavigationMenuDemoProps) {
                 <ListItem to="/about" title="About Us">
                   Learn about our story and mission
                 </ListItem>
-                {user && (
-                  <ListItem to="/welcome" title="Member Welcome">
-                    Your personal meditation space with exclusive music
-                  </ListItem>
-                )}
+                <ListItem to="/meditations" title="Meditations">
+                  Explore our guided meditation sessions
+                </ListItem>
                 <ListItem to="/events" title="Events">
                   Explore our upcoming events and sessions
-                </ListItem>
-                <ListItem to="/program" title="Program">
-                  Discover our transformative program offerings
                 </ListItem>
                 <ListItem to="/contact" title="Contact">
                   Get in touch with our team
@@ -91,13 +86,15 @@ export default function FixedNavigationMenu({ user }: NavigationMenuDemoProps) {
               </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild>
-              <Link to="/meditations" className={navigationMenuTriggerStyle()}>
-                Meditations
-              </Link>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
+          {user && (
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link to="/welcome" className={navigationMenuTriggerStyle()}>
+                  Member Welcome
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          )}
           <NavigationMenuItem>
             <NavigationMenuLink asChild>
               <Link to="/program" className={navigationMenuTriggerStyle()}>
@@ -178,9 +175,11 @@ export default function FixedNavigationMenu({ user }: NavigationMenuDemoProps) {
               <MobileNavLink to="/events" onClick={() => setIsOpen(false)}>
                 Events
               </MobileNavLink>
-              <MobileNavLink to="/meditations" onClick={() => setIsOpen(false)}>
-                Meditations
-              </MobileNavLink>
+              {user && (
+                <MobileNavLink to="/welcome" onClick={() => setIsOpen(false)}>
+                  Member Welcome
+                </MobileNavLink>
+              )}
               {/* Temporarily removed Harmonize - uncomment when ready for payments/full platform
               <MobileNavLink to="/harmonize" onClick={() => setIsOpen(false)}>
                 Harmonize

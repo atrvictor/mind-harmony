@@ -175,15 +175,6 @@ export default function EventCard({
           <Button className="w-full bg-black text-red-500 hover:bg-black cursor-not-allowed" disabled>
             Guest List Full
           </Button>
-        ) : (id === 11 && getTicketsLink && !soldOut) ? (
-          <a
-            href={getTicketsLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full inline-block"
-          >
-            <Button className="w-full">Get Tickets</Button>
-          </a>
         ) : button === "Past Event" ? (
           <Button className="w-full" disabled>
             Past Event
@@ -191,6 +182,10 @@ export default function EventCard({
         ) : button === "Coming Soon" ? (
           <Button className="w-full" disabled>
             Coming Soon
+          </Button>
+        ) : button === "Private event" ? (
+          <Button className="w-full" disabled>
+            Private Event
           </Button>
         ) : (!forceReserve && getTicketsLink && !soldOut) ? (
           <a
@@ -204,7 +199,7 @@ export default function EventCard({
         ) : showReserve ? (
           <>
             <Button className="w-full" onClick={() => setOpen(true)}>
-              Reserve Your Spot
+              {button || "Reserve Your Spot"}
             </Button>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogContent>

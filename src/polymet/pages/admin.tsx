@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import AdminEventsManagement from "@/polymet/components/admin-events-management";
+import SMSSender from "@/polymet/components/sms-sender";
 import { buildDefaultAnnouncement } from "../../lib/emailTemplates";
 
 export default function AdminPage() {
   const { user } = useAuth();
-  const [community, setCommunity] = React.useState<any[]>([]);
+  const [community, setCommunity] = React.useState<any[]>([]); // Completed members (user_profiles)
+  const [initialSignups, setInitialSignups] = React.useState<any[]>([]); // Initial signups (community table)
   const [waitlist, setWaitlist] = React.useState<any[]>([]);
   const [newsletter, setNewsletter] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -53,6 +55,12 @@ export default function AdminPage() {
   const [composeBody, setComposeBody] = React.useState("");
   const [sendingCustom, setSendingCustom] = React.useState(false);
   const [composeIsHtml, setComposeIsHtml] = React.useState(false);
+
+  // Friend invitation state
+  const [friendName, setFriendName] = React.useState("");
+  const [friendEmail, setFriendEmail] = React.useState("");
+  const [friendMagicLink, setFriendMagicLink] = React.useState("");
+  const [friendLinkLoading, setFriendLinkLoading] = React.useState(false);
   const [deletingCommunity, setDeletingCommunity] = React.useState<Set<string>>(new Set());
   const [invitations, setInvitations] = React.useState<any[]>([]);
   const [csvData, setCsvData] = React.useState<any[]>([]);
@@ -91,7 +99,7 @@ export default function AdminPage() {
 
     try {
       const { error } = await supabase
-        .from('community')
+        .from('user_profiles')
         .delete()
         .eq('email', email);
 
@@ -253,7 +261,34 @@ export default function AdminPage() {
     }
   }
 
-  function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity" | "details" | "magiclinks" | "ml1" | "ml2") {
+  async function generateFriendLink() {
+    if (!friendName.trim() || !friendEmail.trim()) return;
+    
+    setFriendLinkLoading(true);
+    try {
+      const response = await fetch('/api/sendAutoMagicLink', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: friendName.trim(),
+          email: friendEmail.trim(),
+          campaign: 'friend_invitation'
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to generate friend link');
+
+      setFriendMagicLink(data.magicLink);
+      alert(`Friend link generated and email sent to ${friendEmail}!`);
+    } catch (error: any) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setFriendLinkLoading(false);
+    }
+  }
+
+  function applyPreset(preset: "announcement" | "reminder" | "thankyou" | "ftcommunity" | "details" | "magiclinks" | "ml1" | "ml2" | "ml3") {
     if (preset === "announcement") {
       setComposeSubject("Early Bird ends tomorrow — Sunset piano at Kate Sessions, Fri 6:30");
       setComposeBody(
@@ -331,6 +366,27 @@ export default function AdminPage() {
         + `<li>Exclusive community updates and offers</li>`
         + `</ul>`
         + `<p style="margin:16px 0"><a href="{{link}}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:500">Claim Your Gift & Join</a></p>`
+        + `<p style="font-size:12px;color:#555">or copy and paste into browser:<br/>{{link}}</p>`
+        + `<p style="font-size:12px;color:#777;margin-top:16px">This invitation expires in 30 days. We respect your privacy and will never share your information.</p>`
+        + `<p>With gratitude,<br/>Vitià Kulish<br/>Mind Harmony</p>`
+        + `</div>`
+      );
+    } else if (preset === "ml3") {
+      setComposeIsHtml(true);
+      setComposeSubject("Enhanced Mind Harmony gift — easier access inside");
+      setComposeBody(
+        `<div style="font-family:Arial,sans-serif;line-height:1.7;color:#111">`
+        + `<p>Dear [First Name],</p>`
+        + `<p>We've enhanced your Mind Harmony gift! If you received our previous email, this is an improved experience with easier access to your exclusive content.</p>`
+        + `<p>Your gift includes access to 4 unreleased piano meditation tracks from my upcoming album, plus exclusive Mind Harmony membership benefits.</p>`
+        + `<p><strong>What's enhanced:</strong></p>`
+        + `<ul style="margin:8px 0;padding-left:20px">`
+        + `<li>Streamlined access process</li>`
+        + `<li>Enhanced member portal experience</li>`
+        + `<li>Improved music player with continuous playback</li>`
+        + `<li>Early access to future events and content</li>`
+        + `</ul>`
+        + `<p style="margin:16px 0"><a href="{{link}}" style="display:inline-block;background:#1E3A5F;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:500">Access Your Enhanced Gift</a></p>`
         + `<p style="font-size:12px;color:#555">or copy and paste into browser:<br/>{{link}}</p>`
         + `<p style="font-size:12px;color:#777;margin-top:16px">This invitation expires in 30 days. We respect your privacy and will never share your information.</p>`
         + `<p>With gratitude,<br/>Vitià Kulish<br/>Mind Harmony</p>`
@@ -487,9 +543,16 @@ export default function AdminPage() {
           .order("created_at", { ascending: false });
         // Fetch other dashboard data
         const { data: communityData, error: communityError } = await supabase
+          .from("user_profiles")
+          .select("first_name, last_name, email, phone, interests, created_at")
+          .order("created_at", { ascending: false });
+        
+        // Fetch initial signups (community table - people who haven't completed the flow)
+        const { data: initialSignupsData, error: initialSignupsError } = await supabase
           .from("community")
           .select("name, email, phone, interest, created_at")
           .order("created_at", { ascending: false });
+          
         const { data: waitlistData, error: waitlistError } = await supabase
           .from("waitlist")
           .select("email, created_at")
@@ -505,13 +568,14 @@ export default function AdminPage() {
           .select("*")
           .order("sent_at", { ascending: false });
         
-        if (eventsError || reservationsError || communityError || waitlistError || newsletterError) {
+        if (eventsError || reservationsError || communityError || initialSignupsError || waitlistError || newsletterError) {
           setError("Failed to fetch data from Supabase.");
         } else {
           setEvents(eventsData || []);
           setReservations(reservationsData || []);
           const communityList = communityData || [];
           setCommunity(communityList);
+          setInitialSignups(initialSignupsData || []);
           setWaitlist(waitlistData || []);
           setNewsletter(newsletterData || []);
           setInvitations(invitationsData || []);
@@ -872,22 +936,76 @@ export default function AdminPage() {
             </div>
           </section>
 
+          {/* Anonymous Analytics Section */}
+          <section className="mb-12">
+            <h2 className="text-xl font-semibold mb-4">Anonymous User Analytics</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h3 className="font-semibold text-blue-900 mb-2">Friend-Gift Page</h3>
+                <p className="text-2xl font-bold text-blue-700">—</p>
+                <p className="text-sm text-blue-600">Unique visitors today</p>
+              </div>
+              <div className="bg-green-50 rounded-lg p-4">
+                <h3 className="font-semibold text-green-900 mb-2">Anonymous Plays</h3>
+                <p className="text-2xl font-bold text-green-700">—</p>
+                <p className="text-sm text-green-600">Song plays (non-members)</p>
+              </div>
+              <div className="bg-purple-50 rounded-lg p-4">
+                <h3 className="font-semibold text-purple-900 mb-2">Top Track</h3>
+                <p className="text-lg font-bold text-purple-700">—</p>
+                <p className="text-sm text-purple-600">Most played by visitors</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 mb-6">
+              📊 Analytics for non-signed-up users will appear here once the tracking system is fully implemented.
+              This includes friend page visitors and their music listening behavior.
+            </p>
+          </section>
+
+          {/* SMS Messaging Section */}
+          <section className="mb-12">
+            <h2 className="text-xl font-semibold mb-4">📱 SMS Messaging</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SMSSender onSMSSent={() => {}} />
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="font-semibold mb-3">SMS Usage Tips</h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li>• <strong>General Messages:</strong> Simple text messages to individuals</li>
+                  <li>• <strong>Event Reminders:</strong> Perfect for day-before notifications</li>
+                  <li>• <strong>Phone Format:</strong> Accepts +1234567890 or (234) 567-8890</li>
+                  <li>• <strong>Character Limit:</strong> Keep messages under 1600 characters</li>
+                  <li>• <strong>Best Times:</strong> 10am-8pm local time for recipients</li>
+                  <li>• <strong>Compliance:</strong> Only text people who opted in</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
           {/* Existing dashboard sections */}
           <section className="mb-12">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Community Signups</h2>
+              <h2 className="text-xl font-semibold">Community Signups (Completed Members)</h2>
               <Button variant="outline" size="sm" onClick={() => {
                 // Re-run initial fetch
                 (async () => {
                   setLoading(true);
                   setError("");
                   try {
+                    // Fetch completed members (user_profiles)
                     const { data: communityData } = await supabase
+                      .from("user_profiles")
+                      .select("first_name, last_name, email, phone, interests, created_at")
+                      .order("created_at", { ascending: false });
+                    
+                    // Fetch initial signups (community table)
+                    const { data: initialSignupsData } = await supabase
                       .from("community")
                       .select("name, email, phone, interest, created_at")
                       .order("created_at", { ascending: false });
+                    
                     const communityList = communityData || [];
                     setCommunity(communityList);
+                    setInitialSignups(initialSignupsData || []);
                     await loadStatsForCommunity(communityList);
                   } finally { setLoading(false); }
                 })();
@@ -934,7 +1052,7 @@ export default function AdminPage() {
                              eventName.includes('April') ? 'Apr' :
                              eventName.includes('July') ? 'Jul' :
                              eventName.includes('August') ? 'Aug' :
-                             eventName.split(' ').slice(0, 2).join(' ')} ({attendees.length})
+                             eventName.split(' ').slice(0, 2).join(' ')} ({(attendees as any[]).length})
                           </Button>
                         ))}
                       </div>
@@ -990,6 +1108,7 @@ export default function AdminPage() {
                   <Button variant="outline" size="sm" onClick={() => applyPreset('magiclinks')}>Magic Links</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('ml1')}>Magic Links: ML1</Button>
                   <Button variant="outline" size="sm" onClick={() => applyPreset('ml2')}>Magic Links: ML2</Button>
+                  <Button variant="outline" size="sm" onClick={() => applyPreset('ml3')}>Magic Links: ML3</Button>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <span>Selected: {Array.from(selectedEmails).length}</span>
@@ -1031,7 +1150,8 @@ export default function AdminPage() {
                 <thead>
                   <tr>
                     <th className="px-4 py-2 border-b text-left">Select</th>
-                    <th className="px-4 py-2 border-b text-left">Name</th>
+                    <th className="px-4 py-2 border-b text-left">First Name</th>
+                    <th className="px-4 py-2 border-b text-left">Last Name</th>
                     <th className="px-4 py-2 border-b text-left">Email</th>
                     <th className="px-4 py-2 border-b text-left">Phone</th>
                     <th className="px-4 py-2 border-b text-left">Interest</th>
@@ -1043,27 +1163,86 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {community.length === 0 ? (
-                    <tr><td colSpan={7} className="px-4 py-2 text-center text-gray-500">No signups yet.</td></tr>
+                    <tr><td colSpan={10} className="px-4 py-2 text-center text-gray-500">No signups yet.</td></tr>
                   ) : (
                     community.map((c, i) => (
                       <tr key={i} className="border-b last:border-b-0">
                         <td className="px-4 py-2"><input type="checkbox" checked={isSelected(c.email)} onChange={() => toggleSelect(c.email)} /></td>
-                        <td className="px-4 py-2">{c.name}</td>
+                        <td className="px-4 py-2">{c.first_name || '—'}</td>
+                        <td className="px-4 py-2">{c.last_name || '—'}</td>
                         <td className="px-4 py-2">{c.email}</td>
                         <td className="px-4 py-2">{c.phone || '—'}</td>
-                        <td className="px-4 py-2">{c.interest}</td>
+                        <td className="px-4 py-2">{Array.isArray(c.interests) ? c.interests.join(', ') : (c.interests || '—')}</td>
                         <td className="px-4 py-2 text-sm text-gray-500">{c.created_at ? new Date(c.created_at).toLocaleString() : ""}</td>
                         <td className="px-4 py-2">{emailClickedMap[(c.email || '').trim().toLowerCase()] ? 'Yes' : '—'}</td>
                         <td className="px-4 py-2">{emailPlayCountMap[(c.email || '').trim().toLowerCase()] ?? 0}</td>
                         <td className="px-4 py-2">
                           <Button
-                            onClick={() => deleteCommunityMember(c.email, c.name)}
+                            onClick={() => deleteCommunityMember(c.email, `${c.first_name} ${c.last_name}`)}
                             disabled={deletingCommunity.has(c.email)}
                             variant="destructive"
                             size="sm"
                             className="text-xs px-2 py-1"
                           >
                             {deletingCommunity.has(c.email) ? 'Deleting...' : 'Delete'}
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Initial Signups Section */}
+          <section className="mb-12">
+            <h2 className="text-xl font-semibold mb-4">Initial Signups (Haven't Completed Flow)</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              These people filled out the initial form but haven't clicked the magic link or completed their profile yet.
+            </p>
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 border-b text-left">Name</th>
+                    <th className="px-4 py-2 border-b text-left">Email</th>
+                    <th className="px-4 py-2 border-b text-left">Phone</th>
+                    <th className="px-4 py-2 border-b text-left">Interest</th>
+                    <th className="px-4 py-2 border-b text-left">Signed Up</th>
+                    <th className="px-4 py-2 border-b text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {initialSignups.length === 0 ? (
+                    <tr><td colSpan={6} className="px-4 py-2 text-center text-gray-500">No initial signups.</td></tr>
+                  ) : (
+                    initialSignups.map((signup, i) => (
+                      <tr key={i} className="border-b last:border-b-0">
+                        <td className="px-4 py-2">{signup.name || '—'}</td>
+                        <td className="px-4 py-2">{signup.email}</td>
+                        <td className="px-4 py-2">{signup.phone || '—'}</td>
+                        <td className="px-4 py-2">{signup.interest || '—'}</td>
+                        <td className="px-4 py-2 text-sm text-gray-500">{signup.created_at ? new Date(signup.created_at).toLocaleString() : ""}</td>
+                        <td className="px-4 py-2">
+                          <Button
+                            onClick={async () => {
+                              try {
+                                const { error } = await supabase
+                                  .from('community')
+                                  .delete()
+                                  .eq('email', signup.email);
+                                if (error) throw error;
+                                setInitialSignups(prev => prev.filter(s => s.email !== signup.email));
+                              } catch (error) {
+                                alert('Failed to delete signup');
+                              }
+                            }}
+                            variant="destructive"
+                            size="sm"
+                            className="text-xs px-2 py-1"
+                          >
+                            Delete
                           </Button>
                         </td>
                       </tr>
@@ -1097,6 +1276,67 @@ export default function AdminPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </section>
+
+          {/* Friend Magic Link Generator */}
+          <section>
+            <h2 className="text-xl font-semibold mb-4">Friend Invitation Generator</h2>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-blue-800 mb-3">
+                Generate magic links for personal friend invitations on social media (Instagram, Facebook, etc.)
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Friend's Name</label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border rounded-md"
+                    placeholder="e.g., Sarah"
+                    value={friendName}
+                    onChange={(e) => setFriendName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Friend's Email</label>
+                  <input
+                    type="email"
+                    className="w-full px-3 py-2 border rounded-md"
+                    placeholder="sarah@example.com"
+                    value={friendEmail}
+                    onChange={(e) => setFriendEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <Button 
+                  onClick={generateFriendLink}
+                  disabled={!friendName.trim() || !friendEmail.trim() || friendLinkLoading}
+                >
+                  {friendLinkLoading ? 'Generating...' : 'Generate Friend Link'}
+                </Button>
+                {friendMagicLink && (
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigator.clipboard.writeText(friendMagicLink)}
+                  >
+                    Copy Link
+                  </Button>
+                )}
+              </div>
+              {friendMagicLink && (
+                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                  <p className="text-sm font-medium text-green-800 mb-2">✅ Friend link generated!</p>
+                  <p className="text-xs text-green-700 mb-2">Use this link in your Instagram/Facebook message:</p>
+                  <code className="text-xs bg-white p-2 rounded border block break-all">{friendMagicLink}</code>
+                  <div className="mt-3 p-2 bg-white border rounded">
+                    <p className="text-sm font-medium mb-1">📱 Copy this message for social media:</p>
+                    <div className="text-sm text-gray-700 italic">
+                      "Hey {friendName}! I have a gift for you - access to 4 unreleased piano meditation tracks from my upcoming album. Just click this link to claim your free access: {friendMagicLink} Takes 30 seconds to set up. Hope you enjoy them! 🙏"
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
 

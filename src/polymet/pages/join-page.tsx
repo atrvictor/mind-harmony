@@ -68,27 +68,26 @@ export default function JoinPage() {
       return;
     }
     
-    // 2) Send welcome email via API route (non-blocking)
+    // 2) Send automatic magic link email with 4 songs access
     try {
-      await fetch('/api/sendCommunityWelcomeEmail', {
+      await fetch('/api/sendAutoMagicLink', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           name: values.name, 
-          email: values.email, 
-          interest: values.interest 
+          email: values.email
         })
       });
     } catch (e) {
-      console.error('Failed to send community welcome email', e);
+      console.error('Failed to send auto magic link email', e);
     }
     
     setIsSubmitting(false);
     setSuccessTitle("Thank You for Joining!");
-    setSuccessMessage("Welcome to the Mind Harmony community! You'll receive updates about upcoming events, meditation sessions, and exclusive content.");
+    setSuccessMessage("Welcome to the Mind Harmony community! Check your email for your special gift - access to 4 unreleased piano tracks and exclusive membership benefits with a magic link to join.");
     setIsSubmitted(true);
     // Show confirmation, then redirect shortly after
-    setTimeout(() => { try { window.location.href = '/'; } catch {} }, 1200);
+    setTimeout(() => { try { window.location.href = '/'; } catch {} }, 3000);
   }
 
   // Removed delayed redirect to avoid timing inconsistencies

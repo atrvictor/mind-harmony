@@ -2,9 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide footer on welcome page */
+/* Hide footer on welcome page and friend page */
 .welcome-page footer {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  z-index: -9999 !important;
+  position: absolute !important;
+  top: -9999px !important;
+}
+
+/* Additional aggressive footer hiding for friend page */
+body:has([data-page="friend"]) footer,
+body:has(.friend-page) footer {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  z-index: -9999 !important;
+  position: absolute !important;
+  top: -9999px !important;
 }
 
 @layer base {

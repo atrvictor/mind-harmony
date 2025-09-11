@@ -35,7 +35,7 @@ export default function NavigationMenuDemo() {
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="hidden lg:flex w-full pl-1 pr-4 items-center justify-between" style={{ minHeight: '64px' }}>
+      <nav className="hidden lg:flex w-full pl-1 pr-4 items-center justify-between" style={{ minHeight: '48px' }}>
         <div className="flex">
           <div className="flex overflow-x-auto whitespace-nowrap">
             <Link to="/" className="flex items-center mr-6">
@@ -72,11 +72,9 @@ export default function NavigationMenuDemo() {
                 <ListItem to="/about" title="About Us">
                   Learn about our story and mission
                 </ListItem>
-                {user && (
-                  <ListItem to="/welcome" title="Member Welcome">
-                    Your personal meditation space with exclusive music
-                  </ListItem>
-                )}
+                <ListItem to="/meditations" title="Meditations">
+                  Explore our guided meditation sessions
+                </ListItem>
                 <ListItem to="/events" title="Events">
                   Explore our upcoming events and sessions
                 </ListItem>
@@ -93,13 +91,15 @@ export default function NavigationMenuDemo() {
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link to="/meditations">
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Meditations
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
+          {user && (
+            <NavigationMenuItem>
+              <Link to="/welcome">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Member Welcome
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+          )}
           <NavigationMenuItem>
                   <Link to="/harmonize">
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -172,17 +172,14 @@ export default function NavigationMenuDemo() {
               <MobileNavLink to="/about" onClick={() => setIsOpen(false)}>
                 About
               </MobileNavLink>
+              <MobileNavLink to="/events" onClick={() => setIsOpen(false)}>
+                Events
+              </MobileNavLink>
               {user && (
                 <MobileNavLink to="/welcome" onClick={() => setIsOpen(false)}>
                   Member Welcome
                 </MobileNavLink>
               )}
-              <MobileNavLink to="/events" onClick={() => setIsOpen(false)}>
-                Events
-              </MobileNavLink>
-              <MobileNavLink to="/meditations" onClick={() => setIsOpen(false)}>
-                Meditations
-              </MobileNavLink>
               <MobileNavLink to="/harmonize" onClick={() => setIsOpen(false)}>
                 Harmonize
               </MobileNavLink>

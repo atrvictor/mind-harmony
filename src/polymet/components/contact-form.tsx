@@ -61,15 +61,15 @@ export default function ContactForm() {
       setIsSubmitting(false);
       return;
     }
-    // 2) Send welcome email via API route (non-blocking)
+    // 2) Send automatic magic link email with 4 songs access
     try {
-      await fetch('/api/sendCommunityWelcomeEmail', {
+      await fetch('/api/sendAutoMagicLink', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: values.name, email: values.email, interest: values.interest })
+        body: JSON.stringify({ name: values.name, email: values.email })
       });
     } catch (e) {
-      console.error('Failed to send community welcome email', e);
+      console.error('Failed to send auto magic link email', e);
     }
     setIsSubmitting(false);
     setIsSubmitted(true);

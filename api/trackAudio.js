@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -10,7 +11,7 @@ export default async function handler(req, res) {
   const supa = createClient(url, serviceKey);
 
   try {
-    const { userEmail, userId, trackSrc, trackTitle, action, position, duration, rid, campaign } = req.body || {};
+    const { userEmail, userId, trackSrc, trackTitle, action, position, duration, rid, campaign, anonymousSessionId } = req.body || {};
     if (!trackSrc || !action) return res.status(400).json({ error: 'Missing trackSrc or action' });
 
     // Optionally verify caller identity if Authorization header is provided
@@ -28,7 +29,11 @@ export default async function handler(req, res) {
     }
 
     const ua = req.headers['user-agent'] || '';
-    const ip = (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '').toString();
+    const clientIP = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
+    const ipHash = clientIP ? crypto.createHash('sha256').update(clientIP.toString()).digest('hex').substring(0, 16) : null;
+
+    // Determine if this is an anonymous user
+    const isAnonymous = !userEmail && !userId && anonymousSessionId;
 
     await supa.from('music_plays').insert({
       email: (req.body.userEmail || userEmail) || null,
@@ -41,7 +46,10 @@ export default async function handler(req, res) {
       rid: rid || null,
       campaign: campaign || null,
       user_agent: ua,
-      ip
+      ip: clientIP.toString(),
+      anonymous_session_id: anonymousSessionId || null,
+      ip_hash: ipHash,
+      is_anonymous: isAnonymous
     });
 
     return res.status(200).json({ ok: true });

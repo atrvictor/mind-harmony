@@ -23,10 +23,9 @@ export default function ReservePage() {
         setPrimaryEvent(primary);
         setPrimarySoldOut(!!primary?.sold_out);
 
-        // Find the September 14th event (Event 11)
-        const september = events.find(e => e.id === 11);
-        setSeptemberEvent(september);
-        setSeptemberSoldOut(!!september?.sold_out);
+        // Don't show September event separately since it's now the primary event
+        setSeptemberEvent(null);
+        setSeptemberSoldOut(false);
 
         // Map to legacy reservations event ids
         try {
@@ -36,31 +35,25 @@ export default function ReservePage() {
             .select('id, event_date, max_seats')
             .order('event_date', { ascending: true });
           
-          if (legacyEvents) {
-            // Map primary event (August 29th) to legacy event ID 2
-            const augustLegacy = legacyEvents.find(e => 
-              e.event_date && e.event_date.includes('2025-08-30')
-            );
-            if (augustLegacy?.id) {
-              setReservationEventId(augustLegacy.id);
+          if (legacyEvents && primary) {
+            // Map current primary event (September 14th 6:00 PM) to legacy event ID
+            const septemberLegacy = legacyEvents.find(e => {
+              if (!e.event_date || !e.event_date.includes('2025-09-14')) return false;
+              const eventHour = new Date(e.event_date).getHours();
+              return eventHour === 18; // 6:00 PM
+            });
+            if (septemberLegacy?.id) {
+              setReservationEventId(septemberLegacy.id);
               
-              // Check if August event is sold out by checking reservations
-              const { data: augustReservations } = await supabase
+              // Check if September event is sold out by checking reservations
+              const { data: septemberReservations } = await supabase
                 .from('reservations')
                 .select('seats')
-                .eq('event_id', augustLegacy.id);
+                .eq('event_id', septemberLegacy.id);
                 
-              const totalReserved = augustReservations?.reduce((sum, res) => sum + res.seats, 0) || 0;
-              const isSoldOut = totalReserved >= augustLegacy.max_seats;
+              const totalReserved = septemberReservations?.reduce((sum, res) => sum + res.seats, 0) || 0;
+              const isSoldOut = totalReserved >= septemberLegacy.max_seats;
               setPrimarySoldOut(isSoldOut);
-            }
-            
-            // Map September event to the new legacy event ID 3
-            const septemberLegacy = legacyEvents.find(e => 
-              e.event_date && e.event_date.includes('2025-09-14')
-            );
-            if (septemberLegacy?.id) {
-              setSeptemberReservationId(septemberLegacy.id);
             }
           }
         } catch (e) {
@@ -132,8 +125,8 @@ export default function ReservePage() {
                 image={primaryEvent.image}
                 featured={primaryEvent.featured}
                 getTicketsLink={primaryEvent.get_tickets_link}
-                button={primaryEvent.button}
-                forceReserve
+                button={primaryEvent.time === '6:00 PM' && primaryEvent.date?.includes('Sep 14') ? 'Reserve Your Spot' : primaryEvent.button}
+                forceReserve={primaryEvent.time === '6:00 PM' && primaryEvent.date?.includes('Sep 14') ? true : !!primaryEvent.button}
                 reservationEventId={reservationEventId}
                 soldOut={primarySoldOut}
               />
@@ -151,8 +144,8 @@ export default function ReservePage() {
                 image={septemberEvent.image}
                 featured={false}
                 getTicketsLink={septemberEvent.get_tickets_link}
-                button="Reserve Your Spot"
-                forceReserve
+                button={septemberEvent.button || "Reserve Your Spot"}
+                forceReserve={septemberEvent.button !== "Private event"}
                 reservationEventId={septemberReservationId}
                 soldOut={septemberSoldOut}
               />

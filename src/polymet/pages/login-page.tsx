@@ -47,11 +47,21 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-      if (error) throw error;
-      setResetMessage("Password reset email sent! Please check your inbox.");
+      // Use our reliable magic link system instead of Supabase password reset
+      const response = await fetch('/api/sendUserMagicLink', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send sign-in link');
+      }
+      
+      setResetMessage("Sign-in link sent! Please check your inbox and click the link to access your account.");
     } catch (err: any) {
-      setError(err.message || "Failed to send reset email");
+      setError(err.message || "Failed to send sign-in link");
     } finally {
       setLoading(false);
     }
@@ -105,7 +115,7 @@ export default function LoginPage() {
             style={{ background: 'none', border: 'none', color: '#1E3A5F', cursor: 'pointer', fontSize: '0.95em', padding: 0 }}
             disabled={loading}
           >
-            Forgot password?
+            Send me a sign-in link
           </button>
         </div>
         

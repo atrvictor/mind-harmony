@@ -109,6 +109,7 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.167.1",
     "tsparticles": "^3.5.0",
+    "twilio": "^5.9.0",
     "vaul": "^1.1.2",
     "vite": "^6.2.0",
     "xlsx": "^0.18.5",

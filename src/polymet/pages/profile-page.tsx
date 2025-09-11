@@ -373,15 +373,25 @@ export default function ProfilePage() {
             variant="outline"
             onClick={async () => {
               setPasswordResetStatus("");
-              const { error } = await supabase.auth.resetPasswordForEmail(user.email!);
-              if (error) {
-                setPasswordResetStatus("Failed to send password reset email: " + error.message);
-              } else {
-                setPasswordResetStatus("Password reset email sent! Please check your inbox.");
+              try {
+                const response = await fetch('/api/sendUserMagicLink', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: user.email })
+                });
+                
+                const result = await response.json();
+                if (!response.ok) {
+                  throw new Error(result.error || 'Failed to send sign-in link');
+                }
+                
+                setPasswordResetStatus("Sign-in link sent! Check your inbox and click the link to access your account from any device.");
+              } catch (err: any) {
+                setPasswordResetStatus("Failed to send sign-in link: " + err.message);
               }
             }}
           >
-            Set Password
+            Send Sign-in Link
           </Button>
           {passwordResetStatus && (
             <p className="mt-2 text-sm text-muted-foreground">{passwordResetStatus}</p>

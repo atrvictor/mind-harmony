@@ -19,30 +19,39 @@ export function setGlobalAudio(src: string, title: string): HTMLAudioElement {
     localStorage.setItem('mh_global_src', currentGlobalSrc);
   }
 
-  // Create new global audio
-  globalAudio = new Audio(src);
+  // Create new global audio OR reuse existing one to preserve event listeners
+  if (!globalAudio) {
+    globalAudio = new Audio();
+    // Setup audio properties only once
+    globalAudio.preload = 'metadata';
+    globalAudio.volume = 0.8;
+    globalAudio.loop = false;
+  }
+  
+  // Change the source (this preserves event listeners)
+  globalAudio.src = src;
   currentGlobalSrc = src;
   
-  // Setup audio
-  globalAudio.preload = 'metadata';
-  globalAudio.volume = 0.8;
-  globalAudio.loop = false;
-  
-  // Auto-save state
-  globalAudio.addEventListener('timeupdate', () => {
-    if (globalAudio && !globalAudio.paused) {
-      localStorage.setItem('mh_global_time', globalAudio.currentTime.toString());
-      localStorage.setItem('mh_global_src', currentGlobalSrc);
-    }
-  });
+  // Auto-save state (only add listeners if this is a new audio element)
+  if (!globalAudio.hasAttribute('data-listeners-added')) {
+    globalAudio.addEventListener('timeupdate', () => {
+      if (globalAudio && !globalAudio.paused) {
+        localStorage.setItem('mh_global_time', globalAudio.currentTime.toString());
+        localStorage.setItem('mh_global_src', currentGlobalSrc);
+      }
+    });
 
-  globalAudio.addEventListener('play', () => {
-    localStorage.setItem('mh_global_playing', 'true');
-  });
+    globalAudio.addEventListener('play', () => {
+      localStorage.setItem('mh_global_playing', 'true');
+    });
 
-  globalAudio.addEventListener('pause', () => {
-    localStorage.setItem('mh_global_playing', 'false');
-  });
+    globalAudio.addEventListener('pause', () => {
+      localStorage.setItem('mh_global_playing', 'false');
+    });
+    
+    // Mark that listeners have been added
+    globalAudio.setAttribute('data-listeners-added', 'true');
+  }
 
   // Restore state if this is the same source as before
   const savedSrc = localStorage.getItem('mh_global_src');

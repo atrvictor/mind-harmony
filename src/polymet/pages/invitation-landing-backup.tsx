@@ -194,6 +194,45 @@ export default function InvitationLandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="mx-auto mb-4 w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
+            <GiftIcon className="w-10 h-10 text-blue-600" />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            A Gift for You 🎵
+          </h1>
+          <p className="text-xl text-gray-600 mb-6">
+            Thank you for being part of Mind Harmony's journey. As our way of saying thanks, 
+            we'd love to share something special with you.
+          </p>
+        </div>
+
+        {/* Benefits Cards */}
+        <div className="grid md:grid-cols-3 gap-4 mb-8">
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <MusicIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+              <h3 className="font-semibold mb-1">4 Unreleased Songs</h3>
+              <p className="text-sm text-gray-600">Exclusive access to Vitiá's upcoming album</p>
+            </CardContent>
+          </Card>
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <UsersIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+              <h3 className="font-semibold mb-1">Member Community</h3>
+              <p className="text-sm text-gray-600">Join our growing meditation community</p>
+            </CardContent>
+          </Card>
+          <Card className="text-center">
+            <CardContent className="pt-6">
+              <GiftIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+              <h3 className="font-semibold mb-1">Early Access</h3>
+              <p className="text-sm text-gray-600">First to know about new events and releases</p>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Main Form */}
         <Card>
           <CardHeader>
@@ -404,38 +443,6 @@ export default function InvitationLandingPage() {
             </form>
           </CardContent>
         </Card>
-
-        {/* Thank You Message */}
-        <div className="text-center mt-8 mb-8">
-          <p className="text-xl text-gray-600">
-            Thank you for being part of Mind Harmony's journey. You have unlocked:
-          </p>
-        </div>
-
-        {/* Benefits Cards */}
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <MusicIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <h3 className="font-semibold mb-1">4 Unreleased Songs</h3>
-              <p className="text-sm text-gray-600">Exclusive access to Vitiá's upcoming album</p>
-            </CardContent>
-          </Card>
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <UsersIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <h3 className="font-semibold mb-1">Member Community</h3>
-              <p className="text-sm text-gray-600">Join our growing meditation community</p>
-            </CardContent>
-          </Card>
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <GiftIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <h3 className="font-semibold mb-1">Early Access</h3>
-              <p className="text-sm text-gray-600">First to know about new events and releases</p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Footer */}
         <div className="text-center mt-8">
