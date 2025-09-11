@@ -69,13 +69,16 @@ function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
 
 // Main App Component
 export default function MindHarmonyPrototype() {
-  console.log('App component rendering');
   return (
     <Router>
+      <AuthProvider>
       <Routes>
-          {/* Test routes - no AuthProvider wrapper to isolate issue */}
-          <Route path="/test" element={<div style={{padding: '50px', fontSize: '24px', background: 'lightblue'}}>TEST ROUTE WORKS</div>} />
-          <Route path="/rsvp" element={<div style={{padding: '50px', fontSize: '24px', background: 'lightgreen'}}>RSVP ROUTE WORKS</div>} />
+          {/* RSVP route */}
+          <Route path="/rsvp" element={
+            <AuthenticatedLayout>
+              <RsvpPage />
+            </AuthenticatedLayout>
+          } />
           
           {/* Regular routes */}
           <Route path="/" element={
@@ -169,15 +172,10 @@ export default function MindHarmonyPrototype() {
             </AuthenticatedLayout>
           } />
           
-          {/* Catch-all route for debugging */}
-          <Route path="*" element={
-            <div style={{padding: '20px', background: '#ffcccc', minHeight: '100vh'}}>
-              <h1>Route Debug</h1>
-              <p>Current path: {window.location.pathname}</p>
-              <p>If you see this, React Router is working but the route doesn't match</p>
-            </div>
-          } />
       </Routes>
+        
+        <AuthStatus />
+      </AuthProvider>
     </Router>
   );
 }
