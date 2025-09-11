@@ -96,7 +96,7 @@ export default function RsvpPage() {
           <div className="text-center text-white px-4">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">RSVP</h1>
             <p className="max-w-2xl mx-auto text-lg">
-              Secure your place at our exclusive events
+              Reserve your spot at our transformative events
             </p>
           </div>
         </div>
