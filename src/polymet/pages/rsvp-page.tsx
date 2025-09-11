@@ -18,9 +18,10 @@ export default function RsvpPage() {
     async function fetchEvents() {
       try {
         const events = await getAllEvents();
-        // Filter out past events (button explicitly set) and pick the first upcoming
+        // Filter out past events (button explicitly set) and pick the 6pm public event for RSVP
         const upcoming = events.filter(e => e.button !== 'Past Event');
-        const primary = upcoming[0] || null;
+        // Prioritize the 6:00 PM Sept 14th event for RSVP page
+        const primary = upcoming.find(e => e.time === '6:00 PM' && e.date?.includes('Sep 14')) || upcoming[0] || null;
         setPrimaryEvent(primary);
         setPrimarySoldOut(!!primary?.sold_out);
 
