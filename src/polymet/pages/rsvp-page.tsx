@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import type { EventDB } from "@/lib/eventsDB";
 
 export default function RsvpPage() {
+  // Updated hero text with Mt. Soledad description
   const [primaryEvent, setPrimaryEvent] = useState<EventDB | null>(null);
   const [septemberEvent, setSeptemberEvent] = useState<EventDB | null>(null);
   const [loading, setLoading] = useState(true);
