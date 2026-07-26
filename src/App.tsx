@@ -73,6 +73,7 @@ export default function MindHarmonyPrototype() {
   return (
     <Router>
       <AuthProvider>
+      <ErrorBoundary>
       <Routes>
           {/* RSVP route */}
           <Route path="/rsvp" element={
@@ -179,6 +180,7 @@ export default function MindHarmonyPrototype() {
           } />
           
       </Routes>
+      </ErrorBoundary>
         
         <AuthStatus />
       </AuthProvider>

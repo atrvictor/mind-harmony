@@ -43,8 +43,24 @@ export default function EventsSection() {
   }
 
   return (
-    <section className="py-16 px-4 md:px-6 lg:px-8 bg-[#F5F0E5]/30">
-      <div className="max-w-7xl mx-auto">
+    <section className="relative overflow-hidden py-16 px-4 md:px-6 lg:px-8 bg-[#F5F0E5]/30">
+      {/* Background video behind the entire Upcoming Events area */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          className="w-full h-full object-cover"
+        >
+          <source src="/drone for site.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div className="absolute inset-0 bg-black/25" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
           <div>
             <h2 className="text-3xl font-bold mb-2">Upcoming Events</h2>
@@ -58,42 +74,51 @@ export default function EventsSection() {
           </Link>
         </div>
 
-        <div className="space-y-6">
-          {/* Nearest event - full width */}
-          <div className="w-full" id="candlelight-yoga">
-            <EventCard
-              id={nearestEvent.id}
-              title={nearestEvent.title}
-              date={nearestEvent.date}
-              time={nearestEvent.time}
-              location={nearestEvent.location}
-              description={nearestEvent.description}
-              image={nearestEvent.image}
-              featured={nearestEvent.featured}
-              getTicketsLink={nearestEvent.getTicketsLink}
-              button={nearestEvent.button}
-            />
+        {!nearestEvent ? (
+          <div id="candlelight-yoga" className="rounded-lg border border-white/30 bg-white/80 p-8 text-center">
+            <p className="text-lg font-medium mb-2">New events coming soon</p>
+            <p className="text-muted-foreground">
+              Check back shortly, or view past events on the events page.
+            </p>
           </div>
-
-          {/* Other events - side by side */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {otherEvents.map((event) => (
+        ) : (
+          <div className="space-y-6">
+            {/* Nearest event - full width */}
+            <div className="w-full" id="candlelight-yoga">
               <EventCard
-                key={event.id}
-                id={event.id}
-                title={event.title}
-                date={event.date}
-                time={event.time}
-                location={event.location}
-                description={event.description}
-                image={event.image}
-                featured={event.featured}
-                getTicketsLink={event.getTicketsLink}
-                button={event.button}
+                id={nearestEvent.id}
+                title={nearestEvent.title}
+                date={nearestEvent.date}
+                time={nearestEvent.time}
+                location={nearestEvent.location}
+                description={nearestEvent.description}
+                image={nearestEvent.image}
+                featured={nearestEvent.featured}
+                getTicketsLink={nearestEvent.getTicketsLink}
+                button={nearestEvent.button}
               />
-            ))}
+            </div>
+
+            {/* Other events - side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {otherEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  id={event.id}
+                  title={event.title}
+                  date={event.date}
+                  time={event.time}
+                  location={event.location}
+                  description={event.description}
+                  image={event.image}
+                  featured={event.featured}
+                  getTicketsLink={event.getTicketsLink}
+                  button={event.button}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );
