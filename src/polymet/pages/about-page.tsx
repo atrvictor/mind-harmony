@@ -3,7 +3,7 @@ import { HeartIcon, MusicIcon } from "lucide-react";
 
 export default function AboutPage() {
   // Named image sources for clarity
-  const founderMainImage = "/victor-at-piano.webp"; // Victor playing piano
+  const founderMainImage = "/victor-at-piano.webp"; // Vitiá playing piano
   const founderCornerImage = "/optimized/founder-corner-image.jpg"; // Corner image
 
   return (
@@ -68,7 +68,7 @@ export default function AboutPage() {
               <div className="aspect-[4/5] overflow-hidden rounded-lg">
                 <img
                   src={founderMainImage}
-                  alt="Victor Kulish, Founder of Mind Harmony"
+                  alt="Vitiá Kulish, Founder of Mind Harmony"
                   className="object-cover w-full h-full"
                   loading="lazy"
                   decoding="async"
@@ -77,7 +77,7 @@ export default function AboutPage() {
               <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-lg shadow-md hidden md:block">
                 <img
                   src={founderCornerImage}
-                  alt="Victor Kulish"
+                  alt="Vitiá Kulish"
                   className="rounded w-[100px] h-[100px] object-cover"
                   loading="lazy"
                   decoding="async"
@@ -89,16 +89,16 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold mb-6">Founder's Story</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
-                  From his earliest days at the piano, music has been Victor Kulish's companion, healer, and guide. As a child, he found joy in playing for his grandmother, who became an endless source of encouragement and inspiration. In her later years, when her mobility was limited, Victor discovered the profound impact of his music—it brought her joy, comfort, and a deep sense of connection during their time together. This experience left an indelible mark on his understanding of music's ability to heal and uplift.
+                  From his earliest days at the piano, music has been Vitiá Kulish's companion, healer, and guide. As a child, he found joy in playing for his grandmother, who became an endless source of encouragement and inspiration. In her later years, when her mobility was limited, Vitiá discovered the profound impact of his music—it brought her joy, comfort, and a deep sense of connection during their time together. This experience left an indelible mark on his understanding of music's ability to heal and uplift.
                 </p>
                 <p>
-                  As Victor grew older, his passion for music blended seamlessly with his fascination for yoga, AcroYoga, and mindfulness practices. Immersing himself in these vibrant communities, he delved deeply into studying self-mastery, meditation, and personal growth. It became clear to him that combining piano music with mindful practices created a uniquely powerful pathway to inner peace and clarity.
+                  As Vitiá grew older, his passion for music blended seamlessly with his fascination for yoga, AcroYoga, and mindfulness practices. Immersing himself in these vibrant communities, he delved deeply into studying self-mastery, meditation, and personal growth. It became clear to him that combining piano music with mindful practices created a uniquely powerful pathway to inner peace and clarity.
                 </p>
                 <p>
-                  Mind Harmony emerged naturally from this realization. Through candlelit yoga accompanied by live piano and piano-guided meditations, Victor discovered his purpose—helping others reconnect to themselves, soothe their minds, and awaken their inner strength. Many dear friends and participants have expressed profound appreciation for his compositions, affirming his belief in music's transformative power.
+                  Mind Harmony emerged naturally from this realization. Through candlelit yoga accompanied by live piano and piano-guided meditations, Vitiá discovered his purpose—helping others reconnect to themselves, soothe their minds, and awaken their inner strength. Many dear friends and participants have expressed profound appreciation for his compositions, affirming his belief in music's transformative power.
                 </p>
                 
-                <h3 className="text-xl font-semibold pt-4">Victor's Vision</h3>
+                <h3 className="text-xl font-semibold pt-4">Vitiá's Vision</h3>
                 <p className="italic">
                   "My vision for Mind Harmony is to create spaces and experiences where people feel completely at ease. I believe each of us carries an incredible spark within—a boundless potential for creativity and wonder. Mind Harmony is my way of helping others rediscover this spark, encouraging them to embrace life's endless possibilities and empowering them to shape their world for the better."
                 </p>
@@ -174,14 +174,14 @@ export default function AboutPage() {
             <div className="text-center">
               <div className="relative w-48 h-48 mx-auto mb-4">
                 <img
-                  src="/optimized/Vic.jpg"
-                  alt="Victor Kulish"
+                  src="/DSC03930_clean_bright_sky_native - Edited.png"
+                  alt="Vitiá Kulish"
                   className="rounded-full object-cover w-full h-full"
                   loading="lazy"
                   decoding="async"
                 />
               </div>
-              <h3 className="text-xl font-semibold">Victor Kulish</h3>
+              <h3 className="text-xl font-semibold">Vitiá Kulish</h3>
               <p className="text-muted-foreground mb-2">
                 Founder & Piano Meditation Guide
               </p>
@@ -212,13 +212,13 @@ export default function AboutPage() {
               <div className="relative w-48 h-48 mx-auto mb-4">
                 <img
                   src="/optimized/Masha.jpg"
-                  alt="Masha Shenderovich"
+                  alt="Masha Itkin"
                   className="rounded-full object-cover w-full h-full"
                   loading="lazy"
                   decoding="async"
                 />
               </div>
-              <h3 className="text-xl font-semibold">Masha Shenderovich</h3>
+              <h3 className="text-xl font-semibold">Masha Itkin</h3>
               <p className="text-muted-foreground mb-2">
                 Founder of Think Simpler & Juicy Kitchen
               </p>
